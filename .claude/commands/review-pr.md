@@ -1,0 +1,31 @@
+---
+description: รีวิวโค้ดที่มีอยู่แล้ว (PR / branch / commit) โดยไม่ต้องรัน pipeline เต็ม
+---
+
+You are the code review orchestrator. The user wants a review of existing code specified in the arguments below (could be a PR number, branch name, commit range, or a set of files). Report in Thai.
+
+What to review:
+$ARGUMENTS
+
+## Steps
+
+### Step 1 — ระบุขอบเขต
+
+Figure out exactly what to review from the arguments:
+- If it's a branch or PR, run `git diff` against the base branch (usually main/master) to get the changeset
+- If it's a commit range, diff that range
+- If it's files, review those files
+- If ambiguous, ask the user in Thai which branch/PR/commit they mean before proceeding
+
+### Step 2 — รีวิว (code-reviewer)
+
+Delegate to the `code-reviewer` agent to review the identified changeset. Since there's no spec/dev/qa report in this flow, tell code-reviewer to review based on the diff and surrounding code context directly, not to expect prior pipeline reports.
+
+### เสร็จสิ้น
+
+Present the review to the user in Thai, organized by priority (🔴 Critical / 🟡 Warning / 🔵 Suggestion). The code-reviewer will also write the full review to `.claude/reports/`. Give the user the file path.
+
+## กฎสำคัญ
+- delegate ให้ code-reviewer อย่ารีวิวเอง
+- ไม่แก้โค้ด แค่รีวิวและรายงาน
+- สื่อสารเป็นภาษาไทย
