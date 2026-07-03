@@ -41,6 +41,14 @@ Delegate to `qa-tester` to independently verify the bug is gone, the regression 
 
 Summarize in Thai: root cause, สิ่งที่แก้, regression test ที่เพิ่ม, และผลยืนยันจาก qa-tester. List the report file paths in `.claude/reports/`.
 
+## การบันทึกสถานะ (รองรับ pause/resume)
+
+ตลอด pipeline ให้เขียน/อัปเดต `.claude/reports/_state.json` ตาม convention ของ `pipeline-state`:
+- หลังจบแต่ละ step: อัปเดต `completed_steps`, `current_step`, `pending_steps`, `next_action`, `report_files`, `notes`, `updated_at`
+- ตอนเริ่มคำสั่ง: เช็คก่อนว่ามี `_state.json` ของ feature เดียวกันที่ยังค้างอยู่ไหม ถ้ามีให้ถามผู้ใช้ว่า "ทำต่อจากที่ค้าง หรือเริ่มใหม่?"
+- เมื่อ workflow เสร็จ: set `status: "done"`
+ทำแบบนี้เพื่อให้ผู้ใช้พิมพ์ `/pause` หยุดกลางคัน แล้ว `/resume` กลับมาทำต่อได้แม้เปิด session ใหม่
+
 ## กฎสำคัญ
 - delegate ทุกครั้ง อย่าแก้เอง
 - อย่าข้าม GATE ยืนยัน root cause
