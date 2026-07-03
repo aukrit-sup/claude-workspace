@@ -49,3 +49,7 @@ Fields:
 - **Never delete the state file** except when explicitly marking a workflow `done` and the user starts something new. When `done`, you may rename it to `_state-{feature}-done.json` for history instead of deleting.
 - **On resume, the `notes` field is authoritative context.** Write it as if explaining to someone with zero memory of the session — because that's exactly the situation after a session restart.
 - Keep it valid JSON. If the file is missing or corrupt, report that clearly rather than guessing.
+
+## ข้อห้ามเรื่องไฟล์ README
+
+ห้ามแตะไฟล์ README ใดๆ เขียนได้เฉพาะ `.claude/reports/_state.json` และไฟล์สถานะที่เกี่ยวข้องเท่านั้น

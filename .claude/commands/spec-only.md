@@ -21,7 +21,12 @@ Present a summary of the spec in Thai and the file path in `.claude/reports/`. T
 
 Do NOT proceed to development. This command stops at the spec.
 
+## การบันทึกสถานะ
+
+คำสั่งนี้เป็น step เดียวจบ แต่หลังทำเสร็จให้บันทึกลง `.claude/reports/_state.json` (ตาม convention `pipeline-state`) ว่าทำอะไรไป เพื่อให้ `/resume` เห็นประวัติได้ ถ้ามี workflow อื่นค้างอยู่ก่อนหน้า อย่าเขียนทับ — ให้บันทึกงานนี้แยกหรือถามผู้ใช้ก่อน
+
 ## กฎสำคัญ
 - delegate ให้ system-analyst
 - หยุดที่ spec เท่านั้น ห้ามเขียนโค้ด
+- ห้ามสร้าง/แก้/เขียนทับไฟล์ README ใดๆ — เอกสารสรุปเขียนลง `.claude/reports/` เท่านั้น
 - สื่อสารเป็นภาษาไทย

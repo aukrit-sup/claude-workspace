@@ -17,7 +17,12 @@ Delegate to the `code-explainer` agent to explore and explain the specified code
 
 Present the explanation to the user in Thai. The code-explainer writes the full explanation to `.claude/reports/`. Give the user the file path, and offer to explain any specific part in more depth.
 
+## การบันทึกสถานะ
+
+คำสั่งนี้เป็น step เดียวจบ แต่หลังทำเสร็จให้บันทึกลง `.claude/reports/_state.json` (ตาม convention `pipeline-state`) ว่าทำอะไรไป เพื่อให้ `/resume` เห็นประวัติได้ ถ้ามี workflow อื่นค้างอยู่ก่อนหน้า อย่าเขียนทับ — ให้บันทึกงานนี้แยกหรือถามผู้ใช้ก่อน
+
 ## กฎสำคัญ
 - delegate ให้ code-explainer
 - ไม่แก้โค้ด แค่อธิบาย
+- ห้ามสร้าง/แก้/เขียนทับไฟล์ README ใดๆ — เอกสารสรุปเขียนลง `.claude/reports/` เท่านั้น
 - สื่อสารเป็นภาษาไทย

@@ -40,7 +40,16 @@ Delegate to `qa-tester` to confirm the same tests still pass with identical beha
 
 Summarize in Thai: อะไรถูก refactor, ยืนยันว่าพฤติกรรมเหมือนเดิม (test baseline ตรงกัน), และปัญหาอื่นที่เจอระหว่างทาง (ถ้ามี). List report paths.
 
+## การบันทึกสถานะ (รองรับ pause/resume)
+
+ตลอด pipeline ให้เขียน/อัปเดต `.claude/reports/_state.json` ตาม convention ของ `pipeline-state`:
+- หลังจบแต่ละ step: อัปเดต `completed_steps`, `current_step`, `pending_steps`, `next_action`, `report_files`, `notes`, `updated_at`
+- ตอนเริ่มคำสั่ง: เช็คก่อนว่ามี `_state.json` ของ feature เดียวกันที่ยังค้างอยู่ไหม ถ้ามีให้ถามผู้ใช้ว่า "ทำต่อจากที่ค้าง หรือเริ่มใหม่?"
+- เมื่อ workflow เสร็จ: set `status: "done"`
+ทำแบบนี้เพื่อให้ผู้ใช้พิมพ์ `/pause` หยุดกลางคัน แล้ว `/resume` กลับมาทำต่อได้แม้เปิด session ใหม่
+
 ## กฎสำคัญ
 - test ต้องมาก่อนและหลัง refactor เสมอ
 - พฤติกรรมห้ามเปลี่ยน — ถ้าจำเป็นต้องเปลี่ยน ให้หยุดถามผู้ใช้
 - delegate ทุกครั้ง สื่อสารเป็นภาษาไทย
+- ห้ามสร้าง/แก้/เขียนทับไฟล์ README ใดๆ — เอกสารสรุปเขียนลง `.claude/reports/` เท่านั้น

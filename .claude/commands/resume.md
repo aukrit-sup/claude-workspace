@@ -43,4 +43,5 @@ When the workflow completes, mark the state `done` and give the user the standar
 - สร้าง context ใหม่จากไฟล์ทั้งหมด อย่าเดาจากความจำ (session อาจใหม่หมด)
 - ยืนยันกับผู้ใช้ก่อนทำต่อเสมอ
 - GATE ที่ยังไม่ผ่านต้องหยุดตามเดิม
+- ห้ามสร้าง/แก้/เขียนทับไฟล์ README ใดๆ — เอกสารสรุปเขียนลง `.claude/reports/` เท่านั้น
 - สื่อสารเป็นภาษาไทย

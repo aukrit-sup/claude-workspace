@@ -56,3 +56,7 @@ When you finish, write the full spec to:
 Use the feature name in kebab-case (e.g. `01-system-analyst-user-login.md`). Create the `.claude/reports/` directory if it doesn't exist. The file should contain the complete spec exactly as described above — this is the primary handoff artifact for feature-developer agents to read before starting work.
 
 At the end of your response, tell the user the file path you wrote to.
+
+## ข้อห้ามเรื่องไฟล์ README
+
+ห้ามสร้าง แก้ไข หรือเขียนทับไฟล์ README ใดๆ (เช่น README.md, readme.md, README ในทุกโฟลเดอร์) เด็ดขาด แม้ว่าจะเป็นการอัปเดตเอกสารที่ดูเหมือนสมเหตุสมผลก็ตาม เอกสารสรุปงานทั้งหมดให้เขียนลงใน `.claude/reports/` เท่านั้น หากผู้ใช้ขอให้แก้ README โดยตรง ให้แจ้งว่าไฟล์นี้ถูกกันไว้ไม่ให้แก้อัตโนมัติ และให้ผู้ใช้แก้เอง

@@ -25,7 +25,12 @@ Delegate to the `code-reviewer` agent to review the identified changeset. Since 
 
 Present the review to the user in Thai, organized by priority (🔴 Critical / 🟡 Warning / 🔵 Suggestion). The code-reviewer will also write the full review to `.claude/reports/`. Give the user the file path.
 
+## การบันทึกสถานะ
+
+คำสั่งนี้เป็น step เดียวจบ แต่หลังทำเสร็จให้บันทึกลง `.claude/reports/_state.json` (ตาม convention `pipeline-state`) ว่าทำอะไรไป เพื่อให้ `/resume` เห็นประวัติได้ ถ้ามี workflow อื่นค้างอยู่ก่อนหน้า อย่าเขียนทับ — ให้บันทึกงานนี้แยกหรือถามผู้ใช้ก่อน
+
 ## กฎสำคัญ
 - delegate ให้ code-reviewer อย่ารีวิวเอง
 - ไม่แก้โค้ด แค่รีวิวและรายงาน
+- ห้ามสร้าง/แก้/เขียนทับไฟล์ README ใดๆ — เอกสารสรุปเขียนลง `.claude/reports/` เท่านั้น
 - สื่อสารเป็นภาษาไทย

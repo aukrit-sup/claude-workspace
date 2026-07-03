@@ -40,3 +40,7 @@ When you finish, write your full report to:
 `.claude/reports/03-qa-tester-{feature-name}.md`
 
 Use the same content as your response output format above. Create `.claude/reports/` if it doesn't exist. At the end of your response, tell the user the file path you wrote to.
+
+## ข้อห้ามเรื่องไฟล์ README
+
+ห้ามสร้าง แก้ไข หรือเขียนทับไฟล์ README ใดๆ (เช่น README.md, readme.md, README ในทุกโฟลเดอร์) เด็ดขาด แม้ว่าจะเป็นการอัปเดตเอกสารที่ดูเหมือนสมเหตุสมผลก็ตาม เอกสารสรุปงานทั้งหมดให้เขียนลงใน `.claude/reports/` เท่านั้น หากผู้ใช้ขอให้แก้ README โดยตรง ให้แจ้งว่าไฟล์นี้ถูกกันไว้ไม่ให้แก้อัตโนมัติ และให้ผู้ใช้แก้เอง
