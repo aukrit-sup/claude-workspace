@@ -1,6 +1,6 @@
 # คำแนะนำโปรเจกต์ (CLAUDE.md)
 
-Repo นี้เป็น **ชุดเครื่องมือ Claude Code** — subagent 6 ตัว, slash command 11 คำสั่ง และ skill 8 ตัว
+Repo นี้เป็น **ชุดเครื่องมือ Claude Code** — subagent 6 ตัว, slash command 12 คำสั่ง และ skill 9 ตัว
 อยู่ใน `.claude/` (คัดลอกไปใช้ในโปรเจกต์อื่นได้) รายละเอียดเต็มดู [`README.md`](../README.md) และ
 [`.claude/skills/README.md`](skills/README.md)
 

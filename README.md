@@ -1,6 +1,6 @@
 # ชุด Subagent + Slash Command + Skill สำหรับ Claude Code
 
-ชุดเครื่องมือครบวงจรสำหรับงานพัฒนาซอฟต์แวร์ใน Claude Code ประกอบด้วย **subagent เฉพาะทาง 6 ตัว**, **slash command 12 คำสั่ง** ที่เรียกใช้ agent เหล่านั้นตามสูตรที่เหมาะกับแต่ละสถานการณ์ และ **skill 8 ตัว** (vendor จาก [9arm-skills](https://github.com/thananon/9arm-skills) + [ui-skills](https://github.com/ibelick/ui-skills)) ที่ผูกเข้ากับ agent/command บางตัวและ auto-trigger ตามบริบท ทุกขั้นตอนเขียนสรุปเป็นไฟล์ `.md` และสื่อสารกับคุณเป็นภาษาไทย
+ชุดเครื่องมือครบวงจรสำหรับงานพัฒนาซอฟต์แวร์ใน Claude Code ประกอบด้วย **subagent เฉพาะทาง 6 ตัว**, **slash command 12 คำสั่ง** ที่เรียกใช้ agent เหล่านั้นตามสูตรที่เหมาะกับแต่ละสถานการณ์ และ **skill 9 ตัว** (vendor จาก [9arm-skills](https://github.com/thananon/9arm-skills) + [ui-skills](https://github.com/ibelick/ui-skills)) ที่ผูกเข้ากับ agent/command บางตัวและ auto-trigger ตามบริบท ทุกขั้นตอนเขียนสรุปเป็นไฟล์ `.md` และสื่อสารกับคุณเป็นภาษาไทย
 
 ชุดนี้ออกแบบให้เป็น **template สำหรับ copy `.claude/` ไปวางในโปรเจกต์อื่น** — เมื่อวางแล้วมันจะ **ตั้งตัวเองอัตโนมัติ** ผ่านระบบ [Project Blueprint](#project-blueprint-แผนที่โปรเจกต์--ลด-context) ที่สร้างแผนที่โปรเจกต์ปลายทางและดูแลความสดให้เอง เพื่อลด context ที่เสียไปกับการสแกนไฟล์ซ้ำๆ ทุก session
 
@@ -40,20 +40,23 @@
 
 ---
 
-## Skill (8 ตัว)
+## Skill (9 ตัว)
 
 Skill คือชุดแนวทางเฉพาะทางที่ Claude หยิบมาใช้ระหว่างทำงาน — vendor มาจาก [thananon/9arm-skills](https://github.com/thananon/9arm-skills) และ [ibelick/ui-skills](https://github.com/ibelick/ui-skills) เก็บไว้ใน `.claude/skills/` (รายละเอียดเต็มดู [`.claude/skills/README.md`](.claude/skills/README.md))
 
-| Skill | หน้าที่ | ที่มา |
+| Skill | ทำอะไร (อ่านแล้วเข้าใจเลย) | ใช้ตอนไหน |
 |---|---|---|
-| `debug-mantra` | วินัย debug 4 ขั้น (reproduce → trace → falsify → cross-reference) | 9arm |
-| `post-mortem` | เขียนบันทึกวิศวกรรมของบั๊กที่แก้แล้ว (root cause, fix, validation) | 9arm |
-| `scrutinize` | รีวิว plan/PR/โค้ดมุมมองคนนอก — ตั้งคำถาม intent + ไล่ code path จริง | 9arm |
-| `management-talk` | แปลงเนื้อหา engineer → ภาษาผู้บริหาร ตามช่องทาง (JIRA/Slack/email) | 9arm |
-| `baseline-ui` | เก็บกวาด UI — spacing, hierarchy, typography, layout | ui-skills |
-| `fixing-accessibility` | audit + แก้ a11y (ARIA, keyboard, focus, contrast, form) | ui-skills |
-| `fixing-metadata` | audit + แก้ metadata/SEO (title, OG, canonical, JSON-LD) | ui-skills |
-| `fixing-motion-performance` | audit + แก้ performance ของ animation (layout thrash, compositor) | ui-skills |
+| `debug-mantra` | บังคับวินัยตอนไล่บั๊ก: ทำให้บั๊กเกิดซ้ำได้ก่อน → หาจุดที่พังจริง → ตั้งสมมติฐานแล้วลองพิสูจน์ว่ามัน "ผิด" → ค่อยแก้ กันการเดาสุ่มแล้วแก้มั่ว | เริ่ม debug, มีบั๊ก, เจอ error/stack trace |
+| `post-mortem` | หลังแก้บั๊กเสร็จ เขียนสรุปว่า "ต้นเหตุคืออะไร แก้ยังไง ทดสอบยังไง แล้วทำไมมันหลุดมาได้" ให้คนอื่น (หรือตัวเราในอีก 6 เดือน) เข้าใจเร็ว | หลังปิดบั๊กที่ยืนยันว่าหายจริงแล้ว |
+| `scrutinize` | รีวิวแบบคนนอก: ถามก่อนว่า "จำเป็นต้องทำแบบนี้ไหม มีวิธีง่ายกว่าไหม" แล้วไล่โค้ดจริงว่าทำได้อย่างที่อ้าง ไม่ใช่ดูแค่ diff | รีวิว PR/แผน/โค้ด, อยากได้ second opinion |
+| `management-talk` | แปลงเรื่องเทคนิคให้ผู้บริหารอ่านรู้เรื่อง: ตัดศัพท์โค้ดออก เหลือ "เกิดอะไร กระทบลูกค้ายังไง ใครดูแล ต่อไปทำอะไร" แล้วจัดรูปตามช่องทาง | ต้องรายงานขึ้นหัวหน้า/exec, ทำ status update, เขียน Slack/อีเมล |
+| `stay-on-track` | กันงานยาวๆ ไม่ให้หลง: จับตอนวนทำซ้ำที่เดิม / คิดเยอะแต่ไม่ลงมือ / context กำลังจะเต็ม แล้วสั่งพักงานด้วย `/pause` ให้กลับมาทำต่อได้ | งานหลาย step ยาวๆ, รู้สึกวน/ติด/ทำซ้ำ |
+| `baseline-ui` | เก็บกวาด UI ที่ AI ทำออกมาดู "มั่ว": จัดระยะห่าง ลำดับความสำคัญ ตัวหนังสือ และ layout ให้เรียบร้อยตามมาตรฐาน | ทำ/ขัดเกลา UI, อยากให้หน้าตาเนี้ยบขึ้น |
+| `fixing-accessibility` | ตรวจ+แก้ให้ทุกคนใช้งานได้: ปุ่มมีชื่อให้ screen reader อ่าน, กดคีย์บอร์ด/Tab ได้, โฟกัสถูกที่, สีตัดกันพอ, ฟอร์มบอก error ชัด | เพิ่มปุ่ม/ฟอร์ม/dialog, เช็ก WCAG |
+| `fixing-metadata` | ตรวจ+แก้ meta ของหน้าเว็บ: title, คำอธิบาย, canonical, การ์ดตอนแชร์ (OG/Twitter), favicon, JSON-LD ให้ SEO และ preview ตอนแชร์ถูกต้อง | ทำหน้าใหม่, แก้ SEO / preview ตอนแชร์ลิงก์ |
+| `fixing-motion-performance` | ตรวจ+แก้ animation ที่กระตุก: เลี่ยงการไปกวน layout, ใช้ property ที่ลื่น (transform/opacity), ไม่ผูก animation กับ scroll โดยตรง | animation หน่วง/กระตุก, รีวิว performance ของ motion |
+
+> **ที่มา:** `debug-mantra`, `post-mortem`, `scrutinize`, `management-talk`, `stay-on-track` มาจาก [9arm-skills](https://github.com/thananon/9arm-skills) · `baseline-ui`, `fixing-accessibility`, `fixing-metadata`, `fixing-motion-performance` มาจาก [ui-skills](https://github.com/ibelick/ui-skills)
 
 **การผูกกับ agent (deterministic):**
 

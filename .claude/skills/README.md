@@ -48,13 +48,14 @@ Skill ในโฟลเดอร์นี้ถูก **vendor (คัดลอ
 ## แหล่งที่มา
 
 ### [thananon/9arm-skills](https://github.com/thananon/9arm-skills)
-`debug-mantra`, `post-mortem`, `scrutinize`, `management-talk`
+`debug-mantra`, `post-mortem`, `scrutinize`, `management-talk`, `stay-on-track` (ดัดแปลงจาก `qwenchance`)
 
 ### [ibelick/ui-skills](https://github.com/ibelick/ui-skills)
 `baseline-ui`, `fixing-accessibility`, `fixing-metadata`, `fixing-motion-performance`
 
-> Skill ที่พึ่ง CLI ภายนอกถูกตัดออกไปแล้ว (`qwen-agent`, `qwenchance` ต้องใช้ `claude-9arm`;
-> `ui-skills-root` ต้องใช้ `npx ui-skills`) — ที่เหลือทั้ง 8 ตัวเป็น guidance ล้วน ไม่พึ่ง CLI
+> Skill ที่พึ่ง CLI ภายนอกถูกตัดออก: `qwen-agent` (ต้องใช้ `claude-9arm`) และ `ui-skills-root`
+> (ต้องใช้ `npx ui-skills`) ส่วน `qwenchance` เดิมนำกลับมาในชื่อ **`stay-on-track`** โดยตัด
+> ส่วนที่พึ่ง CLI ออกและผูก hand off เข้ากับ `/pause` ของชุดนี้แทน — ทั้ง 9 ตัวเป็น guidance ล้วน ไม่พึ่ง CLI
 
 ---
 
@@ -199,6 +200,23 @@ paint → layers → blur & filters → view transitions → tool boundaries
 
 **Trigger:** `/fixing-motion-performance [<file>]` หรือเมื่อ animation กระตุก, รีวิว CSS/JS animation
 **ผูกกับ:** `feature-developer`, `code-reviewer` (เมื่อแตะ animation)
+
+---
+
+### 9. `stay-on-track`
+> **หมวด:** Productivity · **ที่มา:** 9arm-skills (ดัดแปลงจาก `qwenchance` — ไม่เกี่ยวกับ Qwen)
+
+กันงาน multi-step ยาวๆ จากความล้มเหลว 3 แบบ ด้วย checklist ที่รัน **ก่อนทุก step**: **looping**, **over-thinking**, **context หมด**
+
+**checklist:**
+- **วนลูปไหม?** — อ่านไฟล์เดิมที่ไม่เปลี่ยน / รันคำสั่งเดิม / กลับ hypothesis เก่า → หยุด เปลี่ยนวิธี หรือถามผู้ใช้
+- **คิดมากไป?** — reasoning เกิน ~1000 คำโดยยังไม่ลงมือ → หยุดคิด ลงมือ
+- **context ใกล้เต็ม?** — นับ signal (20+ turns, อ่าน 5+ ไฟล์ ฯลฯ) ได้ 2+ → hand off
+
+**กฎเด่น:** retry cap (คำสั่ง fail ห้ามรันครั้งที่ 3), ห้ามแก้แบบมั่ว (แก้ 1 → verify 1), นับ signal อย่าเดา context
+**hand off:** save/commit → ใช้ **`/pause`** ของชุดนี้เก็บ state → บอกผู้ใช้ `/resume` ต่อใน session ใหม่ (เดิม qwenchance ใช้ skill `handoff` ที่เราไม่มี จึงเปลี่ยนมาผูกกับ `/pause`)
+**Trigger:** `/stay-on-track` หรือเมื่อวนลูป/ติด/คิดวน/งานยาวเสี่ยง context หมด
+**การใช้:** auto-trigger จาก description (ไม่ผูกตายตัวกับ subagent)
 
 ---
 
