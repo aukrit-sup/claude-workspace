@@ -1,6 +1,6 @@
 # ชุด Subagent + Slash Command + Skill สำหรับ Claude Code
 
-ชุดเครื่องมือครบวงจรสำหรับงานพัฒนาซอฟต์แวร์ใน Claude Code ประกอบด้วย **subagent เฉพาะทาง 6 ตัว**, **slash command 12 คำสั่ง** ที่เรียกใช้ agent เหล่านั้นตามสูตรที่เหมาะกับแต่ละสถานการณ์ และ **skill 8 ตัว** (vendor จาก [9arm-skills](https://github.com/thananon/9arm-skills) + [ui-skills](https://github.com/ibelick/ui-skills)) ที่ผูกเข้ากับ agent/command บางตัวและ auto-trigger ตามบริบท ทุกขั้นตอนเขียนสรุปเป็นไฟล์ `.md` และสื่อสารกับคุณเป็นภาษาไทย
+ชุดเครื่องมือครบวงจรสำหรับงานพัฒนาซอฟต์แวร์ใน Claude Code ประกอบด้วย **subagent เฉพาะทาง 6 ตัว**, **slash command 12 คำสั่ง** ที่เรียกใช้ agent เหล่านั้นตามสูตรที่เหมาะกับแต่ละสถานการณ์ และ **skill 9 ตัว** (vendor จาก [9arm-skills](https://github.com/thananon/9arm-skills) + [ui-skills](https://github.com/ibelick/ui-skills)) ที่ผูกเข้ากับ agent/command บางตัวและ auto-trigger ตามบริบท ทุกขั้นตอนเขียนสรุปเป็นไฟล์ `.md` และสื่อสารกับคุณเป็นภาษาไทย
 
 ชุดนี้ออกแบบให้เป็น **template สำหรับ copy `.claude/` ไปวางในโปรเจกต์อื่น** — เมื่อวางแล้วมันจะ **ตั้งตัวเองอัตโนมัติ** ผ่านระบบ [Project Blueprint](#project-blueprint-แผนที่โปรเจกต์--ลด-context) ที่สร้างแผนที่โปรเจกต์ปลายทางและดูแลความสดให้เอง เพื่อลด context ที่เสียไปกับการสแกนไฟล์ซ้ำๆ ทุก session
 
@@ -40,7 +40,7 @@
 
 ---
 
-## Skill (8 ตัว)
+## Skill (9 ตัว)
 
 Skill คือชุดแนวทางเฉพาะทางที่ Claude หยิบมาใช้ระหว่างทำงาน — vendor มาจาก [thananon/9arm-skills](https://github.com/thananon/9arm-skills) และ [ibelick/ui-skills](https://github.com/ibelick/ui-skills) เก็บไว้ใน `.claude/skills/` (รายละเอียดเต็มดู [`.claude/skills/README.md`](.claude/skills/README.md))
 
@@ -50,6 +50,7 @@ Skill คือชุดแนวทางเฉพาะทางที่ Clau
 | `post-mortem` | เขียนบันทึกวิศวกรรมของบั๊กที่แก้แล้ว (root cause, fix, validation) | 9arm |
 | `scrutinize` | รีวิว plan/PR/โค้ดมุมมองคนนอก — ตั้งคำถาม intent + ไล่ code path จริง | 9arm |
 | `management-talk` | แปลงเนื้อหา engineer → ภาษาผู้บริหาร ตามช่องทาง (JIRA/Slack/email) | 9arm |
+| `stay-on-track` | กันงานยาวหลุด — loop / คิดมาก / context หมด แล้ว hand off ผ่าน `/pause` | 9arm |
 | `baseline-ui` | เก็บกวาด UI — spacing, hierarchy, typography, layout | ui-skills |
 | `fixing-accessibility` | audit + แก้ a11y (ARIA, keyboard, focus, contrast, form) | ui-skills |
 | `fixing-metadata` | audit + แก้ metadata/SEO (title, OG, canonical, JSON-LD) | ui-skills |
