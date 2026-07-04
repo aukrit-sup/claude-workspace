@@ -1,6 +1,8 @@
 # ชุด Subagent + Slash Command + Skill สำหรับ Claude Code
 
-ชุดเครื่องมือครบวงจรสำหรับงานพัฒนาซอฟต์แวร์ใน Claude Code ประกอบด้วย **subagent เฉพาะทาง 6 ตัว**, **slash command 11 คำสั่ง** ที่เรียกใช้ agent เหล่านั้นตามสูตรที่เหมาะกับแต่ละสถานการณ์ และ **skill 8 ตัว** (vendor จาก [9arm-skills](https://github.com/thananon/9arm-skills) + [ui-skills](https://github.com/ibelick/ui-skills)) ที่ผูกเข้ากับ agent/command บางตัวและ auto-trigger ตามบริบท ทุกขั้นตอนเขียนสรุปเป็นไฟล์ `.md` และสื่อสารกับคุณเป็นภาษาไทย
+ชุดเครื่องมือครบวงจรสำหรับงานพัฒนาซอฟต์แวร์ใน Claude Code ประกอบด้วย **subagent เฉพาะทาง 6 ตัว**, **slash command 12 คำสั่ง** ที่เรียกใช้ agent เหล่านั้นตามสูตรที่เหมาะกับแต่ละสถานการณ์ และ **skill 8 ตัว** (vendor จาก [9arm-skills](https://github.com/thananon/9arm-skills) + [ui-skills](https://github.com/ibelick/ui-skills)) ที่ผูกเข้ากับ agent/command บางตัวและ auto-trigger ตามบริบท ทุกขั้นตอนเขียนสรุปเป็นไฟล์ `.md` และสื่อสารกับคุณเป็นภาษาไทย
+
+ชุดนี้ออกแบบให้เป็น **template สำหรับ copy `.claude/` ไปวางในโปรเจกต์อื่น** — เมื่อวางแล้วมันจะ **ตั้งตัวเองอัตโนมัติ** ผ่านระบบ [Project Blueprint](#project-blueprint-แผนที่โปรเจกต์--ลด-context) ที่สร้างแผนที่โปรเจกต์ปลายทางและดูแลความสดให้เอง เพื่อลด context ที่เสียไปกับการสแกนไฟล์ซ้ำๆ ทุก session
 
 ---
 
@@ -17,12 +19,13 @@
 
 ---
 
-## Slash Command (11 คำสั่ง)
+## Slash Command (12 คำสั่ง)
 
 พิมพ์ชื่อคำสั่งตามด้วยคำอธิบาย แล้วที่เหลือทำงานเอง
 
 | คำสั่ง | ใช้เมื่อ | Agent ที่เกี่ยวข้อง | จุดหยุดตรวจ (GATE) |
 |---|---|---|---|
+| `/blueprint` | สร้าง/อัปเดตแผนที่โปรเจกต์ (`.claude/blueprint.md`) | — | — |
 | `/build-feature` | สร้างฟีเจอร์ใหม่ตั้งแต่ต้น | ครบทั้ง 4 ตัว | ตรวจ spec ก่อน dev |
 | `/fix-bug` | แก้บั๊ก | dev + qa | ยืนยัน root cause ก่อนแก้ |
 | `/hotfix` | แก้ด่วนขึ้น production | dev (diagnose + fix/verify ในตัวเดียว) | ยืนยันก่อนแตะ production |
@@ -92,6 +95,11 @@ Skill ที่เหลือ (เช่น `management-talk`) จะ auto-trig
     spec-only.md
     pause.md
     resume.md
+    blueprint.md
+  hooks/
+    blueprint-check.sh
+  settings.json          # ลงทะเบียน SessionStart hook (blueprint-check)
+  CLAUDE.md              # กฎ cross-cutting (โหลดผ่าน ./CLAUDE.md ที่ @import)
   skills/
     README.md
     debug-mantra/SKILL.md
@@ -105,6 +113,42 @@ Skill ที่เหลือ (เช่น `management-talk`) จะ auto-trig
 ```
 
 Claude Code จะตรวจพบไฟล์อัตโนมัติภายในไม่กี่วินาที (ถ้าโฟลเดอร์เพิ่งสร้างใหม่ตอน session เปิดอยู่ ให้ปิด-เปิดใหม่หนึ่งครั้ง) โฟลเดอร์ `.claude/reports/` ไม่ต้องสร้างเอง — agent สร้างให้ตอนเขียนไฟล์สรุปครั้งแรก
+
+---
+
+## Project Blueprint (แผนที่โปรเจกต์ — ลด context)
+
+เมื่อ copy `.claude/` ไปวางในโปรเจกต์อื่น ชุดนี้จะสร้างและดูแล **แผนที่โปรเจกต์** ที่ `.claude/blueprint.md` ให้อัตโนมัติ เพื่อให้แต่ละ session **อ่านแผนที่แทนการสแกนทั้งโปรเจกต์** — ลด context ที่เสียไปกับการค้นหาไฟล์ซ้ำๆ
+
+### ทำงานยังไง
+
+```
+copy .claude/ → โปรเจกต์ปลายทาง
+        │
+ session แรก: ยังไม่มี blueprint → SessionStart hook แจ้ง → Claude รัน /blueprint สร้างแผนที่ (auto)
+        │
+ .claude/blueprint.md เกิดขึ้น (stamp git SHA + วันที่) แล้ว commit
+        │
+ session ถัดไป: hook เทียบ SHA กับ HEAD → บอก Claude ว่าแผนที่ "สด" หรือ "เก่าตรงไหน"
+        │
+ อ่าน blueprint เป็นจุดตั้งต้น + ยึดโค้ดจริงเหนือ blueprint เฉพาะส่วนที่เปลี่ยน
+```
+
+### 3 ชิ้นส่วน
+
+| ไฟล์ | บทบาท |
+|---|---|
+| `.claude/commands/blueprint.md` | คำสั่ง `/blueprint` — สแกน/refresh แผนที่ (โครงสร้าง, tech stack, entry points, "อยากได้ X ดูที่ไหน") พร้อม stamp `blueprint-sha` |
+| `.claude/hooks/blueprint-check.sh` | SessionStart hook — เทียบ SHA ที่ stamp กับ HEAD แล้ว inject สถานะความสด (สด / เก่ากว่า N commit + ลิสต์ไฟล์ที่เปลี่ยน) เข้า context |
+| `.claude/settings.json` | ลงทะเบียน hook เข้า `SessionStart` |
+
+### ทำไมปลอดภัย (ไม่หลอกให้เชื่อแผนที่เก่า)
+
+- blueprint stamp **git SHA** ตอนสร้าง → hook เทียบกับ HEAD ทุก session
+- ถ้าเก่า hook จะบอก **เฉพาะไฟล์ที่เปลี่ยน** และสั่งให้ยึดโค้ดจริงเหนือ blueprint เฉพาะส่วนนั้น
+- `/blueprint` แบบ refresh อัปเดตเฉพาะส่วนที่ SHA เปลี่ยน ไม่สแกนใหม่ทั้งก้อน
+
+> **หมายเหตุ:** repo template นี้เอง (ไฟล์ markdown ไม่กี่ตัว) ไม่จำเป็นต้องมี blueprint — README + `.claude/CLAUDE.md` ทำหน้าที่แผนที่อยู่แล้ว กลไกนี้ออกแบบมาเพื่อ **โปรเจกต์ปลายทางที่ copy ไปใช้**
 
 ---
 
