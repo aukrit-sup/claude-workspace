@@ -27,16 +27,15 @@ Ask: **"ยืนยันแก้ hotfix นี้ไหม? พิมพ์ '
 
 Never skip this gate — it's the safety check that separates a hotfix from a disaster.
 
-### Step 2 — แก้ + smoke test (feature-developer)
+### Step 2 — แก้ + smoke test + verify แบบ scoped (feature-developer)
 
-After approval:
+After approval, delegate to `feature-developer`. Instruct it to do the fix AND the verification in one pass:
 1. Apply the minimal fix
 2. Add at least a smoke test / regression test for this specific issue
 3. Run the existing test suite to confirm nothing obvious broke
+4. Verify the production issue itself is resolved, scoped to the affected area only (NOT a full regression sweep) — and state explicitly that the check was scoped
 
-### Step 3 — verify เร็ว (qa-tester)
-
-Delegate to `qa-tester` for a focused verification: confirm the production issue is resolved and the fix didn't obviously break adjacent functionality. Given urgency, scope the check to the affected area rather than a full regression sweep — but say so explicitly.
+เหตุผลที่ไม่แยก `qa-tester` ออกมาอีกตัว: hotfix เน้นเร็วและ blast radius เล็ก การ spawn subagent ใหม่ที่ต้องโหลด context ซ้ำหมดไม่คุ้มกับงานด่วน ถ้าต้องการ verify เชิงลึกแบบอิสระ ให้ตามด้วย `/review-pr` ทีหลัง (ดู footer)
 
 ### เสร็จสิ้น
 

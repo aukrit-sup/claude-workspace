@@ -15,6 +15,7 @@ Delegate to the `feature-developer` agent in debugging mode. Instruct it to:
 1. Reproduce the bug first — capture the exact error, stack trace, and reproduction steps
 2. Isolate the failure location and identify the root cause (not just the symptom)
 3. Report the root cause back BEFORE fixing
+4. บันทึก root cause + fix plan + ไฟล์และบรรทัดที่จะแก้ ลง report ให้ละเอียดพอที่ dev ใน Step 2 จะแก้ได้เลยโดยไม่ต้องสำรวจโค้ดซ้ำจากศูนย์ — เพราะ subagent หลัง GATE เริ่ม context ใหม่ ไม่ได้รับความเข้าใจจากตัวแรกมา การเขียน plan ให้ครบตรงนี้คือการประหยัด token ของ Step 2
 
 ### 🛑 GATE — หยุดรอผู้ใช้ยืนยัน root cause
 
@@ -28,7 +29,7 @@ Wait for approval before fixing. This gate prevents fixing the wrong thing.
 
 ### Step 2 — แก้และกัน regression (feature-developer)
 
-After approval, delegate to `feature-developer` to:
+After approval, delegate to `feature-developer`. Tell it to read the Step 1 report first (root cause + fix plan + exact file/line locations) and go straight to the fix without re-exploring the codebase. Then:
 1. Implement the minimal fix targeting the root cause
 2. Write a regression test that fails before the fix and passes after — so this bug can't silently return
 3. Run the full test suite and confirm nothing else broke

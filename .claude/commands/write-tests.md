@@ -31,9 +31,11 @@ After approval, delegate to `feature-developer` to write the tests according to 
 - Cover the edge cases from the plan
 - Run the tests and confirm they pass (or reveal genuine bugs — report those, don't silently make tests pass)
 
-### Step 3 — ตรวจคุณภาพ test (qa-tester)
+### Step 3 — ตรวจคุณภาพ test (qa-tester, เฉพาะงานใหญ่)
 
-Delegate to `qa-tester` to verify the tests are meaningful (would actually catch regressions), not just padding coverage numbers.
+ประเมินขนาดงานก่อนตัดสินใจ spawn agent:
+- **งานเล็ก** (test ไม่กี่ตัว / ไฟล์เดียว) → ไม่ต้อง spawn qa-tester ใหม่ ให้ orchestrator ตรวจเองแบบเบาๆ ว่า test แต่ละตัว assert พฤติกรรมจริง (ลองนึกว่าถ้า logic พังไป test จะจับได้ไหม) — การ spawn subagent เต็มตัวมาอ่าน context ซ้ำหมดไม่คุ้มกับงานเล็ก
+- **งานใหญ่** (test เยอะ หลายไฟล์ หรือ logic ซับซ้อน) → delegate ให้ `qa-tester` ตรวจว่า test มีความหมายจริง (จับ regression ได้ ไม่ใช่แค่เพิ่มตัวเลข coverage)
 
 ### เสร็จสิ้น
 
@@ -50,5 +52,5 @@ Summarize in Thai: test ที่เขียน, coverage ที่เพิ่
 ## กฎสำคัญ
 - test ต้องมีความหมายจริง ไม่ใช่แค่เพิ่มตัวเลข coverage
 - ถ้าเจอบั๊กตอนเขียน test ให้รายงาน อย่าดัด test ให้ผ่าน
-- delegate ทุกครั้ง สื่อสารเป็นภาษาไทย
+- delegate การเขียน test ให้ feature-developer เสมอ, การตรวจคุณภาพ (Step 3) delegate ให้ qa-tester เฉพาะงานใหญ่ สื่อสารเป็นภาษาไทย
 - ห้ามสร้าง/แก้/เขียนทับไฟล์ README ใดๆ — เอกสารสรุปเขียนลง `.claude/reports/` เท่านั้น
