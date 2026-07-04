@@ -11,6 +11,16 @@ Repo นี้เป็น **ชุดเครื่องมือ Claude Code
 - **รายงาน** — ทุก pipeline เขียนไฟล์สรุปลง `.claude/reports/<run-dir>/` และอัปเดต `_state.json` เพื่อรองรับ `/pause` และ `/resume`
 - **Delegate + GATE** — งานที่มี command/agent รองรับให้ delegate ตามสูตร อย่าลุยเอง และอย่าข้ามจุดยืนยัน (GATE) ก่อนแก้ของจริง
 
+## Project blueprint (แผนที่โปรเจกต์ — ลด context)
+
+โปรเจกต์ที่ copy template นี้ไปใช้ ใช้ `.claude/blueprint.md` เป็นแผนที่เพื่อ **ไม่ต้องสแกนทั้งโปรเจกต์ทุก session**:
+
+- **เริ่มงาน** — อ่าน `.claude/blueprint.md` เป็นจุดตั้งต้นก่อน ค่อยค้นไฟล์เสริมเฉพาะจุดที่ blueprint ไม่ครอบคลุม
+- **SessionStart hook** (`blueprint-check.sh`) จะ inject สถานะความสดให้ทุก session: "สดใหม่" = เชื่อ blueprint ได้; "เก่ากว่า HEAD N commit" = ยึดโค้ดจริงเหนือ blueprint เฉพาะไฟล์ที่ hook ระบุ
+- **ไม่มี blueprint** (เพิ่ง copy template มา) → สร้างด้วย `/blueprint` เป็นส่วนหนึ่งของงานแรก **โดยไม่ต้องถาม**
+- **หลังเปลี่ยนโครงสร้าง** (เพิ่ม/ย้าย/ลบไฟล์-โมดูลสำคัญ) → refresh ด้วย `/blueprint` แล้ว commit เฉพาะไฟล์นั้น
+- blueprint ต้อง **lean** (ดัชนี/แผนที่ ไม่ใช่ dump โค้ด) และต้องมี stamp `blueprint-sha:` เสมอ มิฉะนั้น hook เช็คความสดไม่ได้
+
 ## Skill ที่ผูกตายตัวกับ agent (สรุปสั้น)
 
 - `code-reviewer` → `scrutinize` (ทุกรีวิว) + UI skills เมื่อ diff แตะ UI
