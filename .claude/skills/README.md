@@ -11,7 +11,6 @@ a `SKILL.md`.
 - `post-mortem` — write the canonical engineering record of a fixed bug (root cause, fix, validation)
 - `scrutinize` — outsider-perspective end-to-end review of a plan, PR, or code change
 - `management-talk` — rewrite engineer-to-engineer content for engineering-org leadership
-- `qwen-agent` — delegate menial coding tasks to a cheap Qwen-backed subagent *(requires the `claude-9arm` CLI)*
 - `qwenchance` — keep a long task on-track; avoid loops and manage context budget
 
 ### [ibelick/ui-skills](https://github.com/ibelick/ui-skills)
@@ -22,7 +21,6 @@ a `SKILL.md`.
 - `ui-skills-root` — select the smallest useful UI Skills context *(requires the `ui-skills` CLI)*
 
 ## Notes on external dependencies
-- `qwen-agent` / `qwenchance` reference 9arm's `claude-9arm` (Qwen) tooling.
 - `ui-skills-root` invokes the `ui-skills` CLI.
 
 These skills are still readable/usable as guidance, but their CLI-backed features
