@@ -114,6 +114,17 @@ Skill ที่เหลือ (เช่น `management-talk`) จะ auto-trig
 
 Claude Code จะตรวจพบไฟล์อัตโนมัติภายในไม่กี่วินาที (ถ้าโฟลเดอร์เพิ่งสร้างใหม่ตอน session เปิดอยู่ ให้ปิด-เปิดใหม่หนึ่งครั้ง) โฟลเดอร์ `.claude/reports/` ไม่ต้องสร้างเอง — agent สร้างให้ตอนเขียนไฟล์สรุปครั้งแรก
 
+### เริ่มใช้ในโปรเจกต์ใหม่ (ทีละขั้น)
+
+1. คัดลอกโฟลเดอร์ `.claude/` **และไฟล์ `CLAUDE.md` ที่ root** ไปวางที่ root ของโปรเจกต์คุณ
+2. (ทางเลือก) ทำให้ hook รันได้: `chmod +x .claude/hooks/blueprint-check.sh`
+3. เปิด session ใหม่ใน Claude Code → SessionStart hook จะแจ้งว่ายังไม่มี blueprint
+4. พิมพ์ `/blueprint` — หรือแค่เริ่มสั่งงานแรก แล้ว Claude จะสร้างให้เองตามกฎใน `CLAUDE.md` → ได้ `.claude/blueprint.md` + commit อัตโนมัติ
+5. สั่งงานได้ตามปกติ เช่น `/build-feature ...`, `/fix-bug ...`, `/explain ...`
+6. session ถัดไป (คนละวัน/เปิดใหม่) → Claude อ่าน blueprint เป็นแผนที่แทนการสแกนทั้งโปรเจกต์ และ hook จะบอกว่าแผนที่ยัง "สด" ไหม
+
+> ถ้าต้องการ dev backend/frontend คู่ขนาน ให้เปิด flag Agent Team ใน `settings.json` (ดูส่วน [Agent Team](#agent-team-ให้-dev-ทำ-backend--frontend-คู่ขนาน)) — subagent มี `Skill` tool ให้แล้วใน template จึงเรียก skill ที่ผูกไว้ได้ทันที
+
 ---
 
 ## Project Blueprint (แผนที่โปรเจกต์ — ลด context)
@@ -153,6 +164,17 @@ copy .claude/ → โปรเจกต์ปลายทาง
 ---
 
 ## ตัวอย่างการใช้แต่ละคำสั่ง
+
+### `/blueprint` — สร้าง/อัปเดตแผนที่โปรเจกต์
+```
+/blueprint
+```
+รัน: **ครั้งแรก** สแกนโครงสร้างโปรเจกต์ เขียน `.claude/blueprint.md` (ภาพรวม, tech stack, โครงสร้างหลัก, entry points, คำสั่งสำคัญ, "อยากได้ X ดูที่ไหน", conventions) พร้อม stamp git SHA แล้ว commit เฉพาะไฟล์นั้น; **ครั้งถัดไป** เป็น refresh — อัปเดตเฉพาะส่วนที่ไฟล์เปลี่ยนตั้งแต่ SHA เดิม ไม่สแกนใหม่ทั้งก้อน
+
+โฟกัสเฉพาะส่วนได้:
+```
+/blueprint src/payment
+```
 
 ### `/build-feature` — สร้างฟีเจอร์ใหม่
 ```
