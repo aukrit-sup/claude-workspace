@@ -11,7 +11,6 @@ a `SKILL.md`.
 - `post-mortem` — write the canonical engineering record of a fixed bug (root cause, fix, validation)
 - `scrutinize` — outsider-perspective end-to-end review of a plan, PR, or code change
 - `management-talk` — rewrite engineer-to-engineer content for engineering-org leadership
-- `qwenchance` — keep a long task on-track; avoid loops and manage context budget
 
 ### [ibelick/ui-skills](https://github.com/ibelick/ui-skills)
 - `baseline-ui` — deslop UI: fix spacing, hierarchy, typography, small layout issues
