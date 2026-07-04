@@ -7,6 +7,10 @@ You are the code review orchestrator. The user wants a review of existing code s
 What to review:
 $ARGUMENTS
 
+## โฟลเดอร์รายงานของ run นี้
+
+สร้างโฟลเดอร์ใหม่ต่อการรันหนึ่งครั้งเพื่อไม่ให้รายงานเขียนทับของเดิม: `.claude/reports/{target-slug}-{YYYYMMDD-HHMM}/` (timestamp จาก shell `date +%Y%m%d-%H%M`, slug เป็น kebab-case ของ branch/PR/target) แล้วสั่งให้ code-reviewer เขียนรีวิวลงโฟลเดอร์นี้เป็น `04-review.md` บันทึก `report_dir` ลง `_state.json`
+
 ## Steps
 
 ### Step 1 — ระบุขอบเขต

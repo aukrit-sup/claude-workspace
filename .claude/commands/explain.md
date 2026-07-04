@@ -7,6 +7,10 @@ You are the code-explanation orchestrator. The user wants to understand a part o
 What to explain:
 $ARGUMENTS
 
+## โฟลเดอร์รายงานของ run นี้
+
+สร้างโฟลเดอร์ใหม่ต่อการรันหนึ่งครั้งเพื่อไม่ให้รายงานเขียนทับของเดิม: `.claude/reports/{topic-slug}-{YYYYMMDD-HHMM}/` (timestamp จาก shell `date +%Y%m%d-%H%M`, slug เป็น kebab-case ของหัวข้อ) แล้วสั่งให้ code-explainer เขียนคำอธิบายลงโฟลเดอร์นี้เป็น `explain.md` บันทึก `report_dir` ลง `_state.json`
+
 ## Steps
 
 ### Step 1 — อธิบาย (code-explainer)

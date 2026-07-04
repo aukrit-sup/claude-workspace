@@ -36,10 +36,9 @@ Do not fix any bugs yourself. Report them clearly enough that the dev agent can 
 
 ## Summary file
 
-When you finish, write your full report to:
-`.claude/reports/03-qa-tester-{feature-name}.md`
+Write your full report into the **run report directory** the orchestrator gives you (a per-run folder like `.claude/reports/user-login-20260704-1530/`) as `03-qa-tester.md` — a fixed name with NO feature name (the folder carries it). If the orchestrator gives you a label (e.g. `plan` when producing a test plan vs `review` when checking test quality, so two QA passes in one run don't overwrite each other), use `03-qa-tester-{label}.md` instead. If invoked standalone with no directory given, create `.claude/reports/{feature-name}-{YYYYMMDD-HHMM}/` (get the timestamp via the shell, e.g. `date +%Y%m%d-%H%M`) and write there.
 
-Use the same content as your response output format above. Create `.claude/reports/` if it doesn't exist. At the end of your response, tell the user the file path you wrote to.
+Use the same content as your response output format above. At the end of your response, tell the user the full file path you wrote to.
 
 ## ข้อห้ามเรื่องไฟล์ README
 

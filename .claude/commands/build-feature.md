@@ -7,13 +7,27 @@ You are the pipeline orchestrator. The user has described a feature to build in 
 Feature request from the user:
 $ARGUMENTS
 
+## โฟลเดอร์รายงานของ run นี้ (กัน report เขียนทับกัน)
+
+ก่อนเริ่ม Step 1 ให้กำหนด **run report directory** หนึ่งโฟลเดอร์สำหรับงานครั้งนี้:
+- ถ้า resume งานเดิม (มี `_state.json` ของ feature นี้และผู้ใช้เลือกทำต่อ) → ใช้ `report_dir` เดิมจาก state
+- ถ้าเริ่มใหม่ → สร้างโฟลเดอร์ `.claude/reports/{feature-slug}-{YYYYMMDD-HHMM}/` โดยดึง timestamp จาก shell (`date +%Y%m%d-%H%M`) และ `{feature-slug}` เป็น kebab-case ของฟีเจอร์
+
+เวลา delegate ทุก subagent ให้บอก path โฟลเดอร์นี้ชัดเจน และสั่งให้เขียนรายงานลงในโฟลเดอร์นี้ด้วยชื่อไฟล์คงที่ (ไม่ใส่ชื่อ feature ในชื่อไฟล์ เพราะโฟลเดอร์ครอบไว้แล้ว):
+- system-analyst → `01-system-analyst.md`
+- feature-developer → `02-feature-developer-backend.md` / `02-feature-developer-frontend.md` (dev คู่ขนาน) หรือ `02-feature-developer.md` (dev เดี่ยว)
+- qa-tester → `03-qa-tester.md`
+- code-reviewer → `04-review.md`
+
+บันทึก `report_dir` และ path เต็มของทุกไฟล์ลง `_state.json`
+
 ## Pipeline steps
 
 Follow these steps strictly in order. Report progress to the user in Thai between each step.
 
 ### Step 1 — วิเคราะห์ (system-analyst)
 
-Delegate to the `system-analyst` agent to analyze the feature request above and produce a spec. Pass along the full feature description. Instruct it to write the spec to `.claude/reports/` as usual.
+Delegate to the `system-analyst` agent to analyze the feature request above and produce a spec. Pass along the full feature description. Instruct it to write the spec into the run report directory as `01-system-analyst.md` (see the section above).
 
 If the feature clearly involves both a backend and a frontend, explicitly tell system-analyst to split the spec into Backend and Frontend sections with a detailed API contract (endpoint paths, request/response shapes with field names and types, status codes).
 
@@ -61,7 +75,7 @@ After Step 4, give the user a short summary in Thai:
 ## การบันทึกสถานะ (รองรับ pause/resume)
 
 ตลอด pipeline ให้เขียน/อัปเดต `.claude/reports/_state.json` ตาม convention ของ `pipeline-state`:
-- หลังจบแต่ละ step: อัปเดต `completed_steps`, `current_step`, `pending_steps`, `next_action`, `report_files`, `notes`, `updated_at`
+- หลังจบแต่ละ step: อัปเดต `completed_steps`, `current_step`, `pending_steps`, `next_action`, `report_dir`, `report_files`, `notes`, `updated_at`
 - ตอนเริ่มคำสั่ง: เช็คก่อนว่ามี `_state.json` ของ feature เดียวกันที่ยังค้างอยู่ไหม ถ้ามีให้ถามผู้ใช้ว่า "ทำต่อจากที่ค้าง หรือเริ่มใหม่?"
 - เมื่อ workflow เสร็จ: set `status: "done"`
 ทำแบบนี้เพื่อให้ผู้ใช้พิมพ์ `/pause` หยุดกลางคัน แล้ว `/resume` กลับมาทำต่อได้แม้เปิด session ใหม่

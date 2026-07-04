@@ -63,10 +63,9 @@ For each finding: explain the problem, show the current code, and provide a conc
 
 ## Summary file
 
-When you finish, write your full review to:
-`.claude/reports/04-review-{feature-name}.md`
+Write your full review into the **run report directory** the orchestrator gives you (a per-run folder like `.claude/reports/user-login-20260704-1530/`) as `04-review.md` — a fixed name with NO feature name (the folder carries it). If invoked standalone with no directory given (e.g. a one-off `/review-pr` or `/security-audit`), create `.claude/reports/{target-name}-{YYYYMMDD-HHMM}/` (get the timestamp via the shell, e.g. `date +%Y%m%d-%H%M`) and write `04-review.md` there.
 
-Use the same content as your response output format above. Create `.claude/reports/` if it doesn't exist. At the end of your response, tell the user the file path you wrote to.
+Use the same content as your response output format above. At the end of your response, tell the user the full file path you wrote to.
 
 ## ข้อห้ามเรื่องไฟล์ README
 

@@ -7,6 +7,19 @@ You are the test-writing orchestrator. The user wants tests written for code des
 Target for testing:
 $ARGUMENTS
 
+## โฟลเดอร์รายงานของ run นี้ (กัน report เขียนทับกัน)
+
+ก่อนเริ่ม ให้กำหนด **run report directory**:
+- ถ้า resume → ใช้ `report_dir` เดิม
+- ถ้าเริ่มใหม่ → สร้าง `.claude/reports/{slug}-{YYYYMMDD-HHMM}/` (timestamp จาก shell `date +%Y%m%d-%H%M`)
+
+delegate subagent โดยบอก path โฟลเดอร์และชื่อไฟล์คงที่ (qa ถูกเรียกสองครั้ง จึงต้องใส่ label กัน collision):
+- qa-tester Step 1 (test plan) → `03-qa-tester-plan.md`
+- feature-developer Step 2 (เขียน test) → `02-feature-developer.md`
+- qa-tester Step 3 (ตรวจคุณภาพ, เฉพาะงานใหญ่) → `03-qa-tester-review.md`
+
+บันทึก `report_dir` และ path เต็มลง `_state.json`
+
 ## Pipeline steps
 
 ### Step 1 — วิเคราะห์ว่าควร test อะไร (qa-tester)
@@ -44,7 +57,7 @@ Summarize in Thai: test ที่เขียน, coverage ที่เพิ่
 ## การบันทึกสถานะ (รองรับ pause/resume)
 
 ตลอด pipeline ให้เขียน/อัปเดต `.claude/reports/_state.json` ตาม convention ของ `pipeline-state`:
-- หลังจบแต่ละ step: อัปเดต `completed_steps`, `current_step`, `pending_steps`, `next_action`, `report_files`, `notes`, `updated_at`
+- หลังจบแต่ละ step: อัปเดต `completed_steps`, `current_step`, `pending_steps`, `next_action`, `report_dir`, `report_files`, `notes`, `updated_at`
 - ตอนเริ่มคำสั่ง: เช็คก่อนว่ามี `_state.json` ของ feature เดียวกันที่ยังค้างอยู่ไหม ถ้ามีให้ถามผู้ใช้ว่า "ทำต่อจากที่ค้าง หรือเริ่มใหม่?"
 - เมื่อ workflow เสร็จ: set `status: "done"`
 ทำแบบนี้เพื่อให้ผู้ใช้พิมพ์ `/pause` หยุดกลางคัน แล้ว `/resume` กลับมาทำต่อได้แม้เปิด session ใหม่

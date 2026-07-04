@@ -9,7 +9,7 @@ You maintain the pipeline state file that lets work survive across sessions. Thi
 
 ## The state file
 
-Location: `.claude/reports/_state.json`
+Location: `.claude/reports/_state.json` — the state file always stays at the top level of `.claude/reports/` (a fixed place so resume can find it), even though the report artifacts themselves live inside a per-run subfolder.
 
 There is exactly ONE active state file. It represents the current in-progress workflow. Structure:
 
@@ -22,10 +22,11 @@ There is exactly ONE active state file. It represents the current in-progress wo
   "completed_steps": ["system-analyst", "feature-developer"],
   "pending_steps": ["qa-tester", "code-reviewer"],
   "next_action": "รัน qa-tester ตรวจ implementation ของ backend และ frontend",
+  "report_dir": ".claude/reports/user-login-20260704-1530/",
   "report_files": [
-    ".claude/reports/01-system-analyst-user-login.md",
-    ".claude/reports/02-feature-developer-backend-user-login.md",
-    ".claude/reports/02-feature-developer-frontend-user-login.md"
+    ".claude/reports/user-login-20260704-1530/01-system-analyst.md",
+    ".claude/reports/user-login-20260704-1530/02-feature-developer-backend.md",
+    ".claude/reports/user-login-20260704-1530/02-feature-developer-frontend.md"
   ],
   "notes": "backend เปลี่ยน field email_verified เป็น isVerified — frontend sync แล้ว. รอ qa ตรวจ",
   "updated_at": "2026-07-03T14:30:00"
@@ -39,7 +40,8 @@ Fields:
 - `current_step`: the step currently running or about to run
 - `completed_steps` / `pending_steps`: step tracking
 - `next_action`: plain-Thai description of exactly what to do next when resuming
-- `report_files`: all summary files produced so far
+- `report_dir`: the per-run folder holding all of this workflow's reports, created once at workflow start as `.claude/reports/{feature}-{YYYYMMDD-HHMM}/`. Every entry in `report_files` lives inside it. On resume, new reports go into this same folder.
+- `report_files`: all summary files produced so far (full paths inside `report_dir`)
 - `notes`: any context needed to resume correctly (decisions, deviations, open issues) — this is the most important field for a clean resume
 - `updated_at`: ISO timestamp
 

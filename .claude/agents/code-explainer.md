@@ -34,10 +34,9 @@ Write clearly in Thai. Use concrete file paths and function names so the reader 
 
 ## Summary file
 
-When you finish, write your explanation to:
-`.claude/reports/explain-{topic}.md`
+Write your explanation into the **run report directory** the orchestrator gives you (a per-run folder like `.claude/reports/auth-flow-20260704-1530/`) as `explain.md`. If invoked standalone with no directory given, create `.claude/reports/explain-{topic}-{YYYYMMDD-HHMM}/` yourself (use a short kebab-case topic and get the timestamp via the shell, e.g. `date +%Y%m%d-%H%M`) and write `explain.md` there.
 
-Use a short kebab-case topic name (e.g. `explain-auth-flow.md`). Create `.claude/reports/` if it doesn't exist. At the end of your response, tell the user the file path.
+At the end of your response, tell the user the full file path.
 
 ## ข้อห้ามเรื่องไฟล์ README
 

@@ -7,6 +7,18 @@ You are the hotfix orchestrator. This is an urgent production fix. Speed matters
 Production issue:
 $ARGUMENTS
 
+## โฟลเดอร์รายงานของ run นี้ (กัน report เขียนทับกัน)
+
+ก่อนเริ่ม Step 1 ให้กำหนด **run report directory**:
+- ถ้า resume → ใช้ `report_dir` เดิมจาก state
+- ถ้าเริ่มใหม่ → สร้าง `.claude/reports/{issue-slug}-{YYYYMMDD-HHMM}/` (timestamp จาก shell `date +%Y%m%d-%H%M`)
+
+delegate feature-developer โดยบอก path โฟลเดอร์นี้ และชื่อไฟล์คงที่ (ไม่ใส่ชื่อ feature ในไฟล์):
+- Step 1 (วินิจฉัย + เสนอ fix) → `02-feature-developer-diagnosis.md`
+- Step 2 (แก้ + smoke test + verify) → `02-feature-developer-fix.md`  ← แยกไฟล์ ไม่ให้ทับ report วินิจฉัย
+
+บันทึก `report_dir` และ path เต็มลง `_state.json`
+
 ## Pipeline steps
 
 ### Step 1 — วินิจฉัยเร็ว + เสนอ fix แบบเจาะจง (feature-developer, debug mode)
@@ -46,7 +58,7 @@ Add a reminder in Thai: hotfix ทำแบบเร่งรัด แนะน
 ## การบันทึกสถานะ (รองรับ pause/resume)
 
 ตลอด pipeline ให้เขียน/อัปเดต `.claude/reports/_state.json` ตาม convention ของ `pipeline-state`:
-- หลังจบแต่ละ step: อัปเดต `completed_steps`, `current_step`, `pending_steps`, `next_action`, `report_files`, `notes`, `updated_at`
+- หลังจบแต่ละ step: อัปเดต `completed_steps`, `current_step`, `pending_steps`, `next_action`, `report_dir`, `report_files`, `notes`, `updated_at`
 - ตอนเริ่มคำสั่ง: เช็คก่อนว่ามี `_state.json` ของ feature เดียวกันที่ยังค้างอยู่ไหม ถ้ามีให้ถามผู้ใช้ว่า "ทำต่อจากที่ค้าง หรือเริ่มใหม่?"
 - เมื่อ workflow เสร็จ: set `status: "done"`
 ทำแบบนี้เพื่อให้ผู้ใช้พิมพ์ `/pause` หยุดกลางคัน แล้ว `/resume` กลับมาทำต่อได้แม้เปิด session ใหม่

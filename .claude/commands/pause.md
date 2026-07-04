@@ -23,6 +23,7 @@ Update `.claude/reports/_state.json` (following the `pipeline-state` convention)
 - fill `next_action` with a precise, plain-Thai description of exactly what to do next
 - fill `notes` with ALL context needed to resume cleanly: decisions made, deviations from spec, half-finished work, anything in-flight. Write it for someone with zero memory of this session.
 - add the user's pause note (from arguments) into `notes` if provided
+- keep `report_dir` and `report_files` intact — `/resume` needs them to reopen the run's report folder
 - update `updated_at`
 
 If no `_state.json` exists yet (e.g. work was done manually without a pipeline command), create one now capturing the current situation as best you can from the report files and conversation.

@@ -50,12 +50,12 @@ Do not write or modify any code. Your only output is the spec.
 
 ## Summary file
 
-When you finish, write the full spec to:
-`.claude/reports/01-system-analyst-{feature-name}.md`
+Write the full spec into the **run report directory** — a per-run folder that keeps one workflow's artifacts together and prevents overwriting earlier runs of the same feature.
 
-Use the feature name in kebab-case (e.g. `01-system-analyst-user-login.md`). Create the `.claude/reports/` directory if it doesn't exist. The file should contain the complete spec exactly as described above — this is the primary handoff artifact for feature-developer agents to read before starting work.
+- The orchestrator (slash command) gives you the exact directory, e.g. `.claude/reports/user-login-20260704-1530/`. Write your spec there as `01-system-analyst.md` — a fixed name with NO feature name in it (the folder already carries the feature and timestamp).
+- If you were invoked standalone with no directory given, create `.claude/reports/{feature-name}/` and write `01-system-analyst.md` inside it, and tell the user you used an ad-hoc folder because no run directory was provided.
 
-At the end of your response, tell the user the file path you wrote to.
+The spec must be complete exactly as described above — it's the primary handoff artifact for feature-developer agents. At the end of your response, tell the user the full file path you wrote to.
 
 ## ข้อห้ามเรื่องไฟล์ README
 

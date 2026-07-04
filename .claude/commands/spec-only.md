@@ -7,6 +7,10 @@ You are the spec-planning orchestrator. The user wants a spec designed for the f
 Feature/idea to spec out:
 $ARGUMENTS
 
+## โฟลเดอร์รายงานของ run นี้
+
+สร้างโฟลเดอร์ใหม่ต่อการรันหนึ่งครั้งเพื่อไม่ให้ spec เขียนทับของเดิม: `.claude/reports/{feature-slug}-{YYYYMMDD-HHMM}/` (timestamp จาก shell `date +%Y%m%d-%H%M`, slug เป็น kebab-case) แล้วสั่งให้ system-analyst เขียน spec ลงโฟลเดอร์นี้เป็น `01-system-analyst.md` บันทึก `report_dir` ลง `_state.json` — ทำแบบนี้เพื่อให้ `/build-feature` ต่อยอดใช้โฟลเดอร์เดิมได้
+
 ## Steps
 
 ### Step 1 — ออกแบบ spec (system-analyst)

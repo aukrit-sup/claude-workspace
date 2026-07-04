@@ -7,6 +7,10 @@ You are the security audit orchestrator. The user wants a security audit of the 
 Audit target:
 $ARGUMENTS
 
+## โฟลเดอร์รายงานของ run นี้
+
+สร้างโฟลเดอร์ใหม่ต่อการรันหนึ่งครั้งเพื่อไม่ให้รายงานเขียนทับของเดิม: `.claude/reports/security-{scope-slug}-{YYYYMMDD-HHMM}/` (timestamp จาก shell `date +%Y%m%d-%H%M`) แล้วสั่งให้ code-reviewer เขียนผลตรวจลงโฟลเดอร์นี้เป็น `04-review.md` บันทึก `report_dir` ลง `_state.json`
+
 ## Steps
 
 ### Step 1 — ระบุขอบเขต

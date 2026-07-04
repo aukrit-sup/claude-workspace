@@ -33,6 +33,8 @@ Wait for confirmation. This guards against resuming stale work the user has sinc
 
 After confirmation, continue the workflow from `next_action`, delegating to the appropriate subagents exactly as the original command would. Honor any GATEs that still lie ahead (e.g. if resuming before the spec-review gate, still stop for it).
 
+Any new reports produced after resuming go into the existing `report_dir` from the state — do NOT create a new run folder. Tell each delegated subagent that exact directory path and the fixed in-folder filename it should use.
+
 Update `.claude/reports/_state.json` to `status: "in_progress"` and keep updating it after each step (per the `pipeline-state` convention), so the work can be paused again later.
 
 ### เสร็จสิ้น

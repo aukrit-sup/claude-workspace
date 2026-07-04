@@ -30,10 +30,16 @@ If the spec is missing critical information needed to implement correctly (not j
 
 ## Summary file
 
-When you finish, write a summary to:
-`.claude/reports/02-feature-developer-{scope}-{feature-name}.md`
+Write your summary into the **run report directory** the orchestrator gives you (a per-run folder like `.claude/reports/user-login-20260704-1530/`). Use a fixed in-folder filename with NO feature name (the folder already carries it):
 
-Where `{scope}` is `backend`, `frontend`, or omitted if this is a single full-stack dev agent (e.g. `02-feature-developer-backend-user-login.md`, `02-feature-developer-frontend-user-login.md`, or `02-feature-developer-user-login.md`).
+`02-feature-developer-{scope}.md`
+
+Where `{scope}` is:
+- `backend` / `frontend` — when two devs work in parallel on each side (e.g. `02-feature-developer-backend.md`)
+- `diagnosis` / `fix` — in a bug-fix or hotfix flow, to separate the root-cause report from the fix report so the two dev passes don't overwrite each other
+- omitted (`02-feature-developer.md`) — a single full-stack dev with only one pass
+
+The orchestrator tells you which scope label to use. If you were invoked standalone with no directory given, create `.claude/reports/{feature-name}/` and write there, noting you used an ad-hoc folder.
 
 The file should contain the same content as your response output format above (summary, files changed, tests, deviations, assumptions), plus:
 
@@ -41,7 +47,7 @@ The file should contain the same content as your response output format above (s
 - What to specifically test or watch out for
 - Any known limitations or incomplete parts
 
-Create `.claude/reports/` if it doesn't exist. At the end of your response, tell the user the file path you wrote to.
+At the end of your response, tell the user the full file path you wrote to.
 
 ## ข้อห้ามเรื่องไฟล์ README
 
