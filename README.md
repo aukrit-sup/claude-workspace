@@ -1,6 +1,6 @@
-# ชุด Subagent + Slash Command สำหรับ Claude Code
+# ชุด Subagent + Slash Command + Skill สำหรับ Claude Code
 
-ชุดเครื่องมือครบวงจรสำหรับงานพัฒนาซอฟต์แวร์ใน Claude Code ประกอบด้วย **subagent เฉพาะทาง 6 ตัว** และ **slash command 11 คำสั่ง** ที่เรียกใช้ agent เหล่านั้นตามสูตรที่เหมาะกับแต่ละสถานการณ์ ทุกขั้นตอนเขียนสรุปเป็นไฟล์ `.md` และสื่อสารกับคุณเป็นภาษาไทย
+ชุดเครื่องมือครบวงจรสำหรับงานพัฒนาซอฟต์แวร์ใน Claude Code ประกอบด้วย **subagent เฉพาะทาง 6 ตัว**, **slash command 11 คำสั่ง** ที่เรียกใช้ agent เหล่านั้นตามสูตรที่เหมาะกับแต่ละสถานการณ์ และ **skill 8 ตัว** (vendor จาก [9arm-skills](https://github.com/thananon/9arm-skills) + [ui-skills](https://github.com/ibelick/ui-skills)) ที่ผูกเข้ากับ agent/command บางตัวและ auto-trigger ตามบริบท ทุกขั้นตอนเขียนสรุปเป็นไฟล์ `.md` และสื่อสารกับคุณเป็นภาษาไทย
 
 ---
 
@@ -37,6 +37,36 @@
 
 ---
 
+## Skill (8 ตัว)
+
+Skill คือชุดแนวทางเฉพาะทางที่ Claude หยิบมาใช้ระหว่างทำงาน — vendor มาจาก [thananon/9arm-skills](https://github.com/thananon/9arm-skills) และ [ibelick/ui-skills](https://github.com/ibelick/ui-skills) เก็บไว้ใน `.claude/skills/` (รายละเอียดเต็มดู [`.claude/skills/README.md`](.claude/skills/README.md))
+
+| Skill | หน้าที่ | ที่มา |
+|---|---|---|
+| `debug-mantra` | วินัย debug 4 ขั้น (reproduce → trace → falsify → cross-reference) | 9arm |
+| `post-mortem` | เขียนบันทึกวิศวกรรมของบั๊กที่แก้แล้ว (root cause, fix, validation) | 9arm |
+| `scrutinize` | รีวิว plan/PR/โค้ดมุมมองคนนอก — ตั้งคำถาม intent + ไล่ code path จริง | 9arm |
+| `management-talk` | แปลงเนื้อหา engineer → ภาษาผู้บริหาร ตามช่องทาง (JIRA/Slack/email) | 9arm |
+| `baseline-ui` | เก็บกวาด UI — spacing, hierarchy, typography, layout | ui-skills |
+| `fixing-accessibility` | audit + แก้ a11y (ARIA, keyboard, focus, contrast, form) | ui-skills |
+| `fixing-metadata` | audit + แก้ metadata/SEO (title, OG, canonical, JSON-LD) | ui-skills |
+| `fixing-motion-performance` | audit + แก้ performance ของ animation (layout thrash, compositor) | ui-skills |
+
+**การผูกกับ agent (deterministic):**
+
+| Agent / Command | Skill ที่เรียก | เมื่อไหร่ |
+|---|---|---|
+| `code-reviewer` | `scrutinize` + UI skills (`fixing-*`, `baseline-ui`) | ทุกครั้งก่อนสรุปรีวิว / เมื่อ diff แตะ UI |
+| `feature-developer` | `debug-mantra` / UI skills | โหมดวินิจฉัยบั๊ก / เมื่อโค้ดแตะ UI |
+| `qa-tester` | `fixing-accessibility` | เมื่อทดสอบ UI |
+| `/fix-bug`, `/hotfix` | `debug-mantra`, `post-mortem` | ระหว่าง/หลังแก้บั๊ก |
+
+Skill ที่เหลือ (เช่น `management-talk`) จะ auto-trigger จาก `description` ใน conversation หลัก หรือเรียกด้วย `/skill-name` เอง
+
+> **หมายเหตุ:** subagent จะเรียก skill ได้ต่อเมื่อมี `Skill` อยู่ในช่อง `tools:` ของ frontmatter — 3 agent ที่ผูกไว้ (`code-reviewer`, `feature-developer`, `qa-tester`) ถูกเพิ่มให้แล้ว
+
+---
+
 ## วิธีติดตั้ง
 
 คัดลอกไฟล์เข้าโครงสร้างนี้ในโปรเจกต์ (agent กับ command อยู่คนละโฟลเดอร์):
@@ -62,6 +92,16 @@
     spec-only.md
     pause.md
     resume.md
+  skills/
+    README.md
+    debug-mantra/SKILL.md
+    post-mortem/SKILL.md
+    scrutinize/SKILL.md
+    management-talk/SKILL.md
+    baseline-ui/SKILL.md
+    fixing-accessibility/SKILL.md
+    fixing-metadata/SKILL.md
+    fixing-motion-performance/SKILL.md
 ```
 
 Claude Code จะตรวจพบไฟล์อัตโนมัติภายในไม่กี่วินาที (ถ้าโฟลเดอร์เพิ่งสร้างใหม่ตอน session เปิดอยู่ ให้ปิด-เปิดใหม่หนึ่งครั้ง) โฟลเดอร์ `.claude/reports/` ไม่ต้องสร้างเอง — agent สร้างให้ตอนเขียนไฟล์สรุปครั้งแรก
