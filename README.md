@@ -98,9 +98,29 @@ flowchart LR
 
 ## วิธีติดตั้ง
 
+### แบบเร็ว (แนะนำ) — `install.sh`
+
+รันจาก repo นี้ด้วย Git Bash (Windows) หรือ shell ปกติ (macOS/Linux):
+
+```bash
+bash install.sh <target-workspace-dir>                          # ระบุปลายทาง
+bash install.sh                                                 # หรือรันเปล่าๆ แล้วมันถาม path ให้ (พิมพ์ ~ ได้)
+bash install.sh ~/projects/app git@github.com:me/app.git main   # ใส่ remote + branch เลย (optional)
+```
+
+สคริปต์จะ:
+- copy **เฉพาะส่วน template** (`agents/commands/skills/hooks/settings.json/CLAUDE.md` + root `CLAUDE.md`) — ข้าม `reports/`, `blueprint.md`, `README.md`, `.git`
+- สำรอง `.claude/` เดิมของปลายทางเป็น `.claude.bak-<timestamp>` ก่อนเขียนทับ
+- `chmod +x` ให้ hook (settings.json อ้าง `$CLAUDE_PROJECT_DIR` อยู่แล้ว จึง portable ไม่ต้องแก้ path)
+- `git init` + initial commit ให้ถ้าปลายทางยังไม่ใช่ git repo (ถ้าเป็น repo อยู่แล้วไม่แตะ) — remote/branch ใส่ตอนนี้หรือทีหลังก็ได้ และ **ไม่ auto-push** (พิมพ์คำสั่ง push ให้เฉยๆ)
+
+### แบบ manual
+
 คัดลอกไฟล์เข้าโครงสร้างนี้ในโปรเจกต์ (agent กับ command อยู่คนละโฟลเดอร์):
 
 ```
+install.sh               # ตัวติดตั้งอัตโนมัติ (ดู "แบบเร็ว" ด้านบน)
+CLAUDE.md                # stub ที่ @import .claude/CLAUDE.md
 .claude/
   agents/
     system-analyst.md
@@ -143,6 +163,8 @@ flowchart LR
 Claude Code จะตรวจพบไฟล์อัตโนมัติภายในไม่กี่วินาที (ถ้าโฟลเดอร์เพิ่งสร้างใหม่ตอน session เปิดอยู่ ให้ปิด-เปิดใหม่หนึ่งครั้ง) โฟลเดอร์ `.claude/reports/` ไม่ต้องสร้างเอง — agent สร้างให้ตอนเขียนไฟล์สรุปครั้งแรก
 
 ### เริ่มใช้ในโปรเจกต์ใหม่ (ทีละขั้น)
+
+> `install.sh` ทำข้อ 1–2 และ `git init` ให้อัตโนมัติแล้ว — ทำเองตามขั้นด้านล่างก็ได้
 
 1. คัดลอกโฟลเดอร์ `.claude/` **และไฟล์ `CLAUDE.md` ที่ root** ไปวางที่ root ของโปรเจกต์คุณ
 2. (ทางเลือก) ทำให้ hook รันได้: `chmod +x .claude/hooks/blueprint-check.sh`
