@@ -14,6 +14,7 @@ $ARGUMENTS
 - ถ้าเริ่มใหม่ → สร้างโฟลเดอร์ `.claude/reports/{feature-slug}-{YYYYMMDD-HHMM}/` โดยดึง timestamp จาก shell (`date +%Y%m%d-%H%M`) และ `{feature-slug}` เป็น kebab-case ของฟีเจอร์
 
 เวลา delegate ทุก subagent ให้บอก path โฟลเดอร์นี้ชัดเจน และสั่งให้เขียนรายงานลงในโฟลเดอร์นี้ด้วยชื่อไฟล์คงที่ (ไม่ใส่ชื่อ feature ในชื่อไฟล์ เพราะโฟลเดอร์ครอบไว้แล้ว):
+- brainstorm (orchestrator เขียนเอง) → `00-brainstorm.md` (ถ้ามีการ brainstorm)
 - system-analyst → `01-system-analyst.md`
 - feature-developer → `02-feature-developer-backend.md` / `02-feature-developer-frontend.md` (dev คู่ขนาน) หรือ `02-feature-developer.md` (dev เดี่ยว)
 - qa-tester → `03-qa-tester.md`
@@ -25,9 +26,15 @@ $ARGUMENTS
 
 Follow these steps strictly in order. Report progress to the user in Thai between each step.
 
+### Step 0 — brainstorm ดีไซน์กับผู้ใช้ (ถ้าจำเป็น)
+
+ก่อน dispatch system-analyst ให้ **คุณเอง (orchestrator) เรียก skill `brainstorming`** เพื่อถกดีไซน์กับผู้ใช้สดๆ ในลูปหลัก — subagent คุยกับผู้ใช้ไม่ได้ จึงต้องทำจุดนี้เอง
+
+ทำตามหลัก proportional ของ skill: คำขอ**ชัดและเล็กพออยู่แล้ว** → ยืนยัน 1 บรรทัดแล้วข้ามไป Step 1; **คลุมเครือ / ใหญ่ / มีหลายทางเลือก** → รัน loop (ถามทีละคำถาม, ตีแผ่ assumption, เสนอทางเลือกพร้อมข้อแนะนำ) จนได้ข้อสรุป แล้วเขียน design brief ลง `00-brainstorm.md` ในโฟลเดอร์ report ของ run นี้ นี่ไม่ใช่ GATE ตรวจ spec (นั่นอยู่หลัง Step 1) แต่เป็นการตกลงดีไซน์ก่อนเริ่มเขียน spec
+
 ### Step 1 — วิเคราะห์ (system-analyst)
 
-Delegate to the `system-analyst` agent to analyze the feature request above and produce a spec. Pass along the full feature description. Instruct it to write the spec into the run report directory as `01-system-analyst.md` (see the section above).
+Delegate to the `system-analyst` agent to analyze the feature request above and produce a spec. Pass along the full feature description. If a `00-brainstorm.md` was produced in Step 0, pass its content into the agent prompt and instruct it to build the spec on those settled decisions instead of re-asking. Instruct it to write the spec into the run report directory as `01-system-analyst.md` (see the section above).
 
 If the feature clearly involves both a backend and a frontend, explicitly tell system-analyst to split the spec into Backend and Frontend sections with a detailed API contract (endpoint paths, request/response shapes with field names and types, status codes).
 
@@ -81,7 +88,7 @@ After Step 4, give the user a short summary in Thai:
 ทำแบบนี้เพื่อให้ผู้ใช้พิมพ์ `/pause` หยุดกลางคัน แล้ว `/resume` กลับมาทำต่อได้แม้เปิด session ใหม่
 
 ## กฎสำคัญ
-- อย่าทำงานของ subagent เอง — delegate ทุกครั้ง
+- อย่าทำงานของ subagent เอง — delegate ทุกครั้ง (**ยกเว้น** brainstorm ใน Step 0 ที่ต้องทำเองในลูปหลัก เพราะ subagent คุยกับผู้ใช้ไม่ได้)
 - อย่าข้าม GATE ตรวจ spec เด็ดขาด แม้ผู้ใช้จะดูรีบก็ตาม
 - สื่อสารกับผู้ใช้เป็นภาษาไทยทุกครั้งที่รายงานความคืบหน้า
 - ห้ามสร้าง/แก้/เขียนทับไฟล์ README ใดๆ — เอกสารสรุปเขียนลง `.claude/reports/` เท่านั้น

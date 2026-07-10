@@ -1,6 +1,6 @@
 # ชุด Subagent + Slash Command + Skill สำหรับ Claude Code
 
-ชุดเครื่องมือครบวงจรสำหรับงานพัฒนาซอฟต์แวร์ใน Claude Code ประกอบด้วย **subagent เฉพาะทาง 6 ตัว**, **slash command 12 คำสั่ง** ที่เรียกใช้ agent เหล่านั้นตามสูตรที่เหมาะกับแต่ละสถานการณ์ และ **skill 9 ตัว** (vendor จาก [9arm-skills](https://github.com/thananon/9arm-skills) + [ui-skills](https://github.com/ibelick/ui-skills)) ที่ผูกเข้ากับ agent/command บางตัวและ auto-trigger ตามบริบท ทุกขั้นตอนเขียนสรุปเป็นไฟล์ `.md` และสื่อสารกับคุณเป็นภาษาไทย
+ชุดเครื่องมือครบวงจรสำหรับงานพัฒนาซอฟต์แวร์ใน Claude Code ประกอบด้วย **subagent เฉพาะทาง 6 ตัว**, **slash command 12 คำสั่ง** ที่เรียกใช้ agent เหล่านั้นตามสูตรที่เหมาะกับแต่ละสถานการณ์ และ **skill 10 ตัว** (vendor จาก [9arm-skills](https://github.com/thananon/9arm-skills) + [ui-skills](https://github.com/ibelick/ui-skills) + [superpowers](https://github.com/obra/superpowers)) ที่ผูกเข้ากับ agent/command บางตัวและ auto-trigger ตามบริบท ทุกขั้นตอนเขียนสรุปเป็นไฟล์ `.md` และสื่อสารกับคุณเป็นภาษาไทย
 
 ชุดนี้ออกแบบให้เป็น **template สำหรับ copy `.claude/` ไปวางในโปรเจกต์อื่น** — เมื่อวางแล้วมันจะ **ตั้งตัวเองอัตโนมัติ** ผ่านระบบ [Project Blueprint](#project-blueprint-แผนที่โปรเจกต์--ลด-context) ที่สร้างแผนที่โปรเจกต์ปลายทางและดูแลความสดให้เอง เพื่อลด context ที่เสียไปกับการสแกนไฟล์ซ้ำๆ ทุก session
 
@@ -40,12 +40,13 @@
 
 ---
 
-## Skill (9 ตัว)
+## Skill (10 ตัว)
 
-Skill คือชุดแนวทางเฉพาะทางที่ Claude หยิบมาใช้ระหว่างทำงาน — vendor มาจาก [thananon/9arm-skills](https://github.com/thananon/9arm-skills) และ [ibelick/ui-skills](https://github.com/ibelick/ui-skills) เก็บไว้ใน `.claude/skills/` (รายละเอียดเต็มดู [`.claude/skills/README.md`](.claude/skills/README.md))
+Skill คือชุดแนวทางเฉพาะทางที่ Claude หยิบมาใช้ระหว่างทำงาน — vendor มาจาก [thananon/9arm-skills](https://github.com/thananon/9arm-skills), [ibelick/ui-skills](https://github.com/ibelick/ui-skills) และ [obra/superpowers](https://github.com/obra/superpowers) เก็บไว้ใน `.claude/skills/` (รายละเอียดเต็มดู [`.claude/skills/README.md`](.claude/skills/README.md))
 
 | Skill | ทำอะไร (อ่านแล้วเข้าใจเลย) | ใช้ตอนไหน |
 |---|---|---|
+| `brainstorming` | ถกดีไซน์กับผู้ใช้แบบถาม-ตอบทีละคำถามก่อนเขียน spec: สรุปปัญหาจริง → ตีแผ่สมมติฐาน → เสนอทางเลือกพร้อมข้อแนะนำ → สรุปเป็น design brief ส่งต่อ system-analyst (รันในลูปหลัก subagent ทำแทนไม่ได้) | ก่อนออกแบบ spec เมื่อโจทย์ยังคลุมเครือ/มีหลายทาง, "ช่วยออกแบบ", "ถกแบบก่อน" |
 | `debug-mantra` | บังคับวินัยตอนไล่บั๊ก: ทำให้บั๊กเกิดซ้ำได้ก่อน → หาจุดที่พังจริง → ตั้งสมมติฐานแล้วลองพิสูจน์ว่ามัน "ผิด" → ค่อยแก้ กันการเดาสุ่มแล้วแก้มั่ว | เริ่ม debug, มีบั๊ก, เจอ error/stack trace |
 | `post-mortem` | หลังแก้บั๊กเสร็จ เขียนสรุปว่า "ต้นเหตุคืออะไร แก้ยังไง ทดสอบยังไง แล้วทำไมมันหลุดมาได้" ให้คนอื่น (หรือตัวเราในอีก 6 เดือน) เข้าใจเร็ว | หลังปิดบั๊กที่ยืนยันว่าหายจริงแล้ว |
 | `scrutinize` | รีวิวแบบคนนอก: ถามก่อนว่า "จำเป็นต้องทำแบบนี้ไหม มีวิธีง่ายกว่าไหม" แล้วไล่โค้ดจริงว่าทำได้อย่างที่อ้าง ไม่ใช่ดูแค่ diff | รีวิว PR/แผน/โค้ด, อยากได้ second opinion |
@@ -56,7 +57,7 @@ Skill คือชุดแนวทางเฉพาะทางที่ Clau
 | `fixing-metadata` | ตรวจ+แก้ meta ของหน้าเว็บ: title, คำอธิบาย, canonical, การ์ดตอนแชร์ (OG/Twitter), favicon, JSON-LD ให้ SEO และ preview ตอนแชร์ถูกต้อง | ทำหน้าใหม่, แก้ SEO / preview ตอนแชร์ลิงก์ |
 | `fixing-motion-performance` | ตรวจ+แก้ animation ที่กระตุก: เลี่ยงการไปกวน layout, ใช้ property ที่ลื่น (transform/opacity), ไม่ผูก animation กับ scroll โดยตรง | animation หน่วง/กระตุก, รีวิว performance ของ motion |
 
-> **ที่มา:** `debug-mantra`, `post-mortem`, `scrutinize`, `management-talk`, `stay-on-track` มาจาก [9arm-skills](https://github.com/thananon/9arm-skills) · `baseline-ui`, `fixing-accessibility`, `fixing-metadata`, `fixing-motion-performance` มาจาก [ui-skills](https://github.com/ibelick/ui-skills)
+> **ที่มา:** `debug-mantra`, `post-mortem`, `scrutinize`, `management-talk`, `stay-on-track` มาจาก [9arm-skills](https://github.com/thananon/9arm-skills) · `baseline-ui`, `fixing-accessibility`, `fixing-metadata`, `fixing-motion-performance` มาจาก [ui-skills](https://github.com/ibelick/ui-skills) · `brainstorming` ดัดแปลงจาก [superpowers](https://github.com/obra/superpowers)
 
 **การผูกกับ agent (deterministic):**
 
@@ -66,6 +67,7 @@ Skill คือชุดแนวทางเฉพาะทางที่ Clau
 | `feature-developer` | `debug-mantra` / UI skills | โหมดวินิจฉัยบั๊ก / เมื่อโค้ดแตะ UI |
 | `qa-tester` | `fixing-accessibility` | เมื่อทดสอบ UI |
 | `/fix-bug`, `/hotfix` | `debug-mantra`, `post-mortem` | ระหว่าง/หลังแก้บั๊ก |
+| `/spec-only`, `/build-feature` | `brainstorming` | ก่อน dispatch system-analyst เมื่อโจทย์คลุมเครือ (orchestrator เรียกเอง ไม่ใช่ subagent) |
 
 Skill ที่เหลือ (เช่น `management-talk`) จะ auto-trigger จาก `description` ใน conversation หลัก หรือเรียกด้วย `/skill-name` เอง
 
@@ -77,7 +79,10 @@ flowchart LR
     FB["/fix-bug"] --> FD
     HF["/hotfix"] --> FD
     RP["/review-pr"] --> CR
+    SO["/spec-only"] --> SA
 
+    BF -. "Step 0 โจทย์คลุมเครือ" .-> BS["brainstorming"]
+    SO -. "Step 1 โจทย์คลุมเครือ" .-> BS
     FD -. "debug mode" .-> DM["debug-mantra"]
     FD -. "แตะ UI" .-> UI["baseline-ui / fixing-*"]
     QA -. "ทดสอบ UI" .-> ACC["fixing-accessibility"]
@@ -127,6 +132,8 @@ flowchart LR
     post-mortem/SKILL.md
     scrutinize/SKILL.md
     management-talk/SKILL.md
+    stay-on-track/SKILL.md
+    brainstorming/SKILL.md
     baseline-ui/SKILL.md
     fixing-accessibility/SKILL.md
     fixing-metadata/SKILL.md

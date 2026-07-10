@@ -1,6 +1,6 @@
 # คำแนะนำโปรเจกต์ (CLAUDE.md)
 
-Repo นี้เป็น **ชุดเครื่องมือ Claude Code** — subagent 6 ตัว, slash command 12 คำสั่ง และ skill 9 ตัว
+Repo นี้เป็น **ชุดเครื่องมือ Claude Code** — subagent 6 ตัว, slash command 12 คำสั่ง และ skill 10 ตัว
 อยู่ใน `.claude/` (คัดลอกไปใช้ในโปรเจกต์อื่นได้) รายละเอียดเต็มดู [`README.md`](../README.md) และ
 [`.claude/skills/README.md`](skills/README.md)
 
@@ -27,6 +27,7 @@ Repo นี้เป็น **ชุดเครื่องมือ Claude Code
 - `feature-developer` → `debug-mantra` (โหมดวินิจฉัย) / UI skills (เมื่อแตะ UI)
 - `qa-tester` → `fixing-accessibility` (เมื่อทดสอบ UI)
 - `/fix-bug`, `/hotfix` → `debug-mantra`, `post-mortem`
+- `/spec-only` (Step 1), `/build-feature` (Step 0) → `brainstorming` — **orchestrator เรียกเองในลูปหลัก** ก่อน dispatch `system-analyst` เมื่อโจทย์คลุมเครือ (subagent คุยกับผู้ใช้ไม่ได้ จึงไม่ผูกกับ sa)
 - ที่เหลือ (เช่น `management-talk`) auto-trigger จาก `description` หรือเรียก `/skill-name`
 
 ## เมื่อแก้การผูก skill ↔ agent — ต้อง sync 3 ที่ให้ตรงกัน
