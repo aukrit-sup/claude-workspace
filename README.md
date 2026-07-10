@@ -98,9 +98,7 @@ flowchart LR
 
 ## วิธีติดตั้ง
 
-### แบบเร็ว (แนะนำ) — `install.sh`
-
-รันจาก repo นี้ด้วย Git Bash (Windows) หรือ shell ปกติ (macOS/Linux):
+รัน `install.sh` จาก repo นี้ด้วย Git Bash (Windows) หรือ shell ปกติ (macOS/Linux):
 
 ```bash
 bash install.sh <target-workspace-dir>                          # ระบุปลายทาง
@@ -114,64 +112,15 @@ bash install.sh ~/projects/app git@github.com:me/app.git main   # ใส่ remo
 - `chmod +x` ให้ hook (settings.json อ้าง `$CLAUDE_PROJECT_DIR` อยู่แล้ว จึง portable ไม่ต้องแก้ path)
 - `git init` + initial commit ให้ถ้าปลายทางยังไม่ใช่ git repo (ถ้าเป็น repo อยู่แล้วไม่แตะ) — remote/branch ใส่ตอนนี้หรือทีหลังก็ได้ และ **ไม่ auto-push** (พิมพ์คำสั่ง push ให้เฉยๆ)
 
-### แบบ manual
-
-คัดลอกไฟล์เข้าโครงสร้างนี้ในโปรเจกต์ (agent กับ command อยู่คนละโฟลเดอร์):
-
-```
-install.sh               # ตัวติดตั้งอัตโนมัติ (ดู "แบบเร็ว" ด้านบน)
-CLAUDE.md                # stub ที่ @import .claude/CLAUDE.md
-.claude/
-  agents/
-    system-analyst.md
-    feature-developer.md
-    qa-tester.md
-    code-reviewer.md
-    code-explainer.md
-    pipeline-state.md
-  commands/
-    build-feature.md
-    fix-bug.md
-    hotfix.md
-    refactor.md
-    write-tests.md
-    review-pr.md
-    security-audit.md
-    explain.md
-    spec-only.md
-    pause.md
-    resume.md
-    blueprint.md
-  hooks/
-    blueprint-check.sh
-  settings.json          # ลงทะเบียน SessionStart hook (blueprint-check)
-  CLAUDE.md              # กฎ cross-cutting (โหลดผ่าน ./CLAUDE.md ที่ @import)
-  skills/
-    README.md
-    debug-mantra/SKILL.md
-    post-mortem/SKILL.md
-    scrutinize/SKILL.md
-    management-talk/SKILL.md
-    stay-on-track/SKILL.md
-    brainstorming/SKILL.md
-    baseline-ui/SKILL.md
-    fixing-accessibility/SKILL.md
-    fixing-metadata/SKILL.md
-    fixing-motion-performance/SKILL.md
-```
-
 Claude Code จะตรวจพบไฟล์อัตโนมัติภายในไม่กี่วินาที (ถ้าโฟลเดอร์เพิ่งสร้างใหม่ตอน session เปิดอยู่ ให้ปิด-เปิดใหม่หนึ่งครั้ง) โฟลเดอร์ `.claude/reports/` ไม่ต้องสร้างเอง — agent สร้างให้ตอนเขียนไฟล์สรุปครั้งแรก
 
 ### เริ่มใช้ในโปรเจกต์ใหม่ (ทีละขั้น)
 
-> `install.sh` ทำข้อ 1–2 และ `git init` ให้อัตโนมัติแล้ว — ทำเองตามขั้นด้านล่างก็ได้
-
-1. คัดลอกโฟลเดอร์ `.claude/` **และไฟล์ `CLAUDE.md` ที่ root** ไปวางที่ root ของโปรเจกต์คุณ
-2. (ทางเลือก) ทำให้ hook รันได้: `chmod +x .claude/hooks/blueprint-check.sh`
-3. เปิด session ใหม่ใน Claude Code → SessionStart hook จะแจ้งว่ายังไม่มี blueprint
-4. พิมพ์ `/blueprint` — หรือแค่เริ่มสั่งงานแรก แล้ว Claude จะสร้างให้เองตามกฎใน `CLAUDE.md` → ได้ `.claude/blueprint.md` + commit อัตโนมัติ
-5. สั่งงานได้ตามปกติ เช่น `/build-feature ...`, `/fix-bug ...`, `/explain ...`
-6. session ถัดไป (คนละวัน/เปิดใหม่) → Claude อ่าน blueprint เป็นแผนที่แทนการสแกนทั้งโปรเจกต์ และ hook จะบอกว่าแผนที่ยัง "สด" ไหม
+1. รัน `bash install.sh <target-workspace-dir>` — copy toolkit + `chmod +x` hook + `git init` + initial commit ให้ครบ
+2. เปิด session ใหม่ใน Claude Code → SessionStart hook จะแจ้งว่ายังไม่มี blueprint
+3. พิมพ์ `/blueprint` — หรือแค่เริ่มสั่งงานแรก แล้ว Claude จะสร้างให้เองตามกฎใน `CLAUDE.md` → ได้ `.claude/blueprint.md` + commit อัตโนมัติ
+4. สั่งงานได้ตามปกติ เช่น `/build-feature ...`, `/fix-bug ...`, `/explain ...`
+5. session ถัดไป (คนละวัน/เปิดใหม่) → Claude อ่าน blueprint เป็นแผนที่แทนการสแกนทั้งโปรเจกต์ และ hook จะบอกว่าแผนที่ยัง "สด" ไหม
 
 > ถ้าต้องการ dev backend/frontend คู่ขนาน ให้เปิด flag Agent Team ใน `settings.json` (ดูส่วน [Agent Team](#agent-team-ให้-dev-ทำ-backend--frontend-คู่ขนาน)) — subagent มี `Skill` tool ให้แล้วใน template จึงเรียก skill ที่ผูกไว้ได้ทันที
 
