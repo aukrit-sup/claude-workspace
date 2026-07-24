@@ -33,6 +33,23 @@ if [ -z "$TARGET" ]; then
   echo "No target given — aborting." >&2
   exit 1
 fi
+# normalize a Windows-style path (backslashes and/or a C:\ / C:/ drive prefix) into the
+# POSIX form the rest of the script needs. Without this, Git Bash treats "C:\..." as a
+# relative name and installs into a bogus ./C:/... tree under the current dir.
+# cygpath ships with Git Bash; fall back to a manual rewrite if it is missing. No-op on
+# real Unix paths (no backslash, no drive letter).
+case "$TARGET" in
+  *\\* | [A-Za-z]:[\\/]*)
+    if command -v cygpath >/dev/null 2>&1; then
+      TARGET="$(cygpath -u "$TARGET")"
+    else
+      TARGET="${TARGET//\\//}"                       # backslashes -> forward slashes
+      case "$TARGET" in                              # C:/... -> /c/...
+        [A-Za-z]:/*) _drv="$(printf '%s' "${TARGET%%:*}" | tr 'A-Z' 'a-z')"; TARGET="/$_drv${TARGET#?:}" ;;
+      esac
+    fi
+    ;;
+esac
 # interactive: optionally ask for a remote now (Enter to skip and set it later).
 # Skip the whole prompt if the target is already a git repo — its remote is left
 # as-is later (step 7), so asking would only be a blind, no-op question.
