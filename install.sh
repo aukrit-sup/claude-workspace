@@ -33,8 +33,10 @@ if [ -z "$TARGET" ]; then
   echo "No target given — aborting." >&2
   exit 1
 fi
-# interactive: optionally ask for a remote now (Enter to skip and set it later)
-if [ "$INTERACTIVE" = 1 ] && [ -z "$REMOTE" ]; then
+# interactive: optionally ask for a remote now (Enter to skip and set it later).
+# Skip the whole prompt if the target is already a git repo — its remote is left
+# as-is later (step 7), so asking would only be a blind, no-op question.
+if [ "$INTERACTIVE" = 1 ] && [ -z "$REMOTE" ] && [ ! -e "$TARGET/.git" ]; then
   read -r -p "Git remote URL (optional, Enter to skip): " REMOTE || true
   if [ -n "$REMOTE" ]; then
     read -r -p "Branch name [main]: " _b || true
