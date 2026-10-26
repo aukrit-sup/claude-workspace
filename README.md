@@ -107,8 +107,10 @@ bash install.sh ~/projects/app git@github.com:me/app.git main   # ใส่ remo
 ```
 
 สคริปต์จะ:
-- copy **เฉพาะส่วน template** (`agents/commands/skills/hooks/settings.json/CLAUDE.md` + root `CLAUDE.md`) — ข้าม `reports/`, `blueprint.md`, `README.md`, `.git`
-- สำรอง `.claude/` เดิมของปลายทางเป็น `.claude.bak-<timestamp>` ก่อนเขียนทับ
+- copy **เฉพาะส่วน template** (`agents/commands/skills/hooks/settings.json/.claude/CLAUDE.md`) — ข้าม `reports/`, `knowledge/`, `blueprint.md`, `README.md`, `.git`
+- root `CLAUDE.md` copy **เฉพาะครั้งแรก** (ถ้ามีอยู่แล้วไม่ทับ — เป็นที่ใส่กฎเฉพาะโปรเจกต์ได้ถาวร)
+- สำรองเฉพาะไฟล์ที่จะถูกเขียนทับไว้ที่ `.claude.bak-<timestamp>` (ไม่รวม `reports/`)
+- สร้าง `kit-export.sh` / `kit-pull.sh` ที่ root ของปลายทาง (ดูหัวข้อถัดไป — เขียนทับทุกครั้งที่ install)
 - `chmod +x` ให้ hook (settings.json อ้าง `$CLAUDE_PROJECT_DIR` อยู่แล้ว จึง portable ไม่ต้องแก้ path)
 - `git init` + initial commit ให้ถ้าปลายทางยังไม่ใช่ git repo (ถ้าเป็น repo อยู่แล้วไม่แตะ) — remote/branch ใส่ตอนนี้หรือทีหลังก็ได้ และ **ไม่ auto-push** (พิมพ์คำสั่ง push ให้เฉยๆ)
 
@@ -121,6 +123,24 @@ Claude Code จะตรวจพบไฟล์อัตโนมัติภ�
 3. พิมพ์ `/blueprint` — หรือแค่เริ่มสั่งงานแรก แล้ว Claude จะสร้างให้เองตามกฎใน `CLAUDE.md` → ได้ `.claude/blueprint.md` + commit อัตโนมัติ
 4. สั่งงานได้ตามปกติ เช่น `/build-feature ...`, `/fix-bug ...`, `/explain ...`
 5. session ถัดไป (คนละวัน/เปิดใหม่) → Claude อ่าน blueprint เป็นแผนที่แทนการสแกนทั้งโปรเจกต์ และ hook จะบอกว่าแผนที่ยัง "สด" ไหม
+
+### อัปเดตสองทาง + แบ่งความรู้ให้ทีม (`kit-pull.sh` / `kit-export.sh`)
+
+ไฟล์แบ่งเจ้าของชัดเจน: **repo นี้** เป็นเจ้าของ toolkit (`agents/ commands/ skills/ hooks/ settings.json .claude/CLAUDE.md`)
+ส่วน **workspace** เป็นเจ้าของ root `CLAUDE.md`, `.claude/knowledge/`, `blueprint.md`, `reports/`
+
+| ทิศทาง | คำสั่ง (รันใน workspace หรือดับเบิลคลิก) | เทียบเท่า |
+|---|---|---|
+| repo นี้ → workspace | รัน install ซ้ำ | `bash install.sh <ws>` |
+| workspace → repo นี้ | `bash kit-pull.sh` แล้วดู `git diff` ที่ repo นี้ก่อน commit/push เอง | `bash install.sh --pull <ws>` |
+| workspace → เพื่อนร่วมทีม | `bash kit-export.sh` → ได้ `<ws>-claude-kit-YYYYMMDD.zip` ให้เพื่อนแตกที่ root workspace | `bash install.sh --export <ws> [out.zip]` |
+
+กันข้อมูลหลุด:
+- **`--pull`** — ต้องมีไฟล์ `.leak-patterns` ที่ root ของ repo นี้ (gitignored, regex บรรทัดละตัว เช่นชื่อ package/ระบบ/host ของลูกค้า) ถ้าไม่มีจะไม่ทำงาน และถ้าไฟล์ toolkit ฝั่ง workspace match แม้ไฟล์เดียวจะไม่ดึงอะไรเลย → ย้ายข้อความนั้นไป root `CLAUDE.md` หรือ `.claude/knowledge/`
+- **`--export`** — zip หยิบแบบ allowlist (toolkit + `.claude/knowledge/` + `CLAUDE.md` ทั้งสองไฟล์) และไม่ยอมสร้าง zip ถ้าเจอไฟล์ที่ไม่ใช่ `.md/.sh/.json` หรือบรรทัดหน้าตาเป็นโค้ด (`package ...;`, `import ...;`, SQL, `<%@`) — ชื่อ class/path ในข้อความยังผ่านได้ (เหมาะกับทีมที่มีสิทธิ์ดู source อยู่แล้ว)
+- ตัวตรวจทั้งสองเป็นตาข่ายกันพลาด ไม่ใช่ 100% — เปิดดู diff / การ์ดก่อนส่งทุกครั้ง
+
+`.claude/knowledge/` (ไม่มีโค้ดจริง): `rules.md` (กฎ/gotcha — import ผ่าน root `CLAUDE.md`), `systems.md` (แผนที่ระบบ), `features/<slug>.md` (การ์ดส่งต่องาน: สถานะ, ข้อยุติ, ไฟล์ที่แตะแบบ pointer, งานค้าง, วิธี verify)
 
 > ถ้าต้องการ dev backend/frontend คู่ขนาน ให้เปิด flag Agent Team ใน `settings.json` (ดูส่วน [Agent Team](#agent-team-ให้-dev-ทำ-backend--frontend-คู่ขนาน)) — subagent มี `Skill` tool ให้แล้วใน template จึงเรียก skill ที่ผูกไว้ได้ทันที
 
