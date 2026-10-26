@@ -1,0 +1,4 @@
+# local-only: project/client terms that install.sh --pull must never copy into this repo
+.leak-patterns
+.claude/reports/
+.claude/settings.local.json

@@ -11,6 +11,16 @@ Repo นี้เป็น **ชุดเครื่องมือ Claude Code
 - **รายงาน** — ทุก pipeline เขียนไฟล์สรุปลง `.claude/reports/<run-dir>/` และอัปเดต `_state.json` เพื่อรองรับ `/pause` และ `/resume`
 - **Delegate + GATE** — งานที่มี command/agent รองรับให้ delegate ตามสูตร อย่าลุยเอง และอย่าข้ามจุดยืนยัน (GATE) ก่อนแก้ของจริง
 
+## Knowledge ของทีม (`.claude/knowledge/`)
+
+- **ความรู้ที่ทีมต้องรู้เขียนลง `.claude/knowledge/`** — ไม่เก็บแค่ใน memory ส่วนตัว (คนอื่นมองไม่เห็น):
+  กฎ/gotcha ที่เจ็บมาแล้ว → `rules.md` · โครงสร้างระบบ → `systems.md` · สถานะงานรายฟีเจอร์ → `features/<slug>.md`
+- **`/pause` หรือจบงานฟีเจอร์** → อัปเดตการ์ด `features/<slug>.md` (สถานะ, ข้อยุติ, งานค้าง, gotcha) คู่กับ `_state.json`
+- **ห้ามมีโค้ดจริงใน knowledge** — อ้างเป็น path/ชื่อ class/เมธอด/ตาราง ห้ามแปะ body, credential, IP
+  (`kit-export.sh` จะไม่ยอมสร้าง zip ถ้าเจอรูปแบบโค้ด)
+- **ไฟล์ toolkit (`agents/ commands/ skills/ hooks/` + ไฟล์นี้) ต้องเป็นของกลาง** — ห้ามมีชื่อโปรเจกต์/ระบบ/host;
+  ของเฉพาะโปรเจกต์ใส่ root `CLAUDE.md` หรือ knowledge (`kit-pull.sh` จะบล็อกถ้าเจอ)
+
 ## Project blueprint (แผนที่โปรเจกต์ — ลด context)
 
 โปรเจกต์ที่ copy template นี้ไปใช้ ใช้ `.claude/blueprint.md` เป็นแผนที่เพื่อ **ไม่ต้องสแกนทั้งโปรเจกต์ทุก session**:

@@ -11,13 +11,80 @@
 #   git remote add origin <url> && git branch -M <branch> && git push -u origin <branch>
 #
 # Copies only the template parts (agents/commands/skills/hooks/settings/CLAUDE.md).
-# Skips per-project runtime: reports/, blueprint.md, README.md, .git
+# Skips per-project runtime: reports/, knowledge/, blueprint.md, README.md, .git
+# Root CLAUDE.md is copied only when missing — after that it belongs to the project (its own rules/imports).
 # The hook in settings.json uses $CLAUDE_PROJECT_DIR, so it is portable — no path rewrite needed.
+#
+# Two more modes:
+#   ./install.sh --pull   <workspace>          workspace -> this repo (toolkit files only), then review git diff
+#   ./install.sh --export <workspace> [x.zip]  toolkit + .claude/knowledge -> zip for teammates (no source code)
+#
+# --pull refuses to run unless .leak-patterns (gitignored, one ERE per line) exists here, and aborts
+# if any pulled file matches — this repo has a public-ish remote, project names must never reach it.
 
 set -euo pipefail
 
 # 1) source = the directory this script lives in (resolved no matter where it's run from)
 SRC="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+OWNED_DIRS="agents commands skills hooks"   # toolkit-owned; everything else in .claude belongs to the workspace
+
+if [ "${1:-}" = "--pull" ]; then
+  WS="$(cd "${2:?usage: install.sh --pull <workspace>}" && pwd)"
+  [ "$WS" != "$SRC" ] || { echo "Workspace must not be the toolkit repo itself" >&2; exit 1; }
+  [ -s "$SRC/.leak-patterns" ] || { echo "Missing $SRC/.leak-patterns — create it (one regex per line) before pulling" >&2; exit 1; }
+  PAT="$(mktemp)"; trap 'rm -f "$PAT"' EXIT
+  grep -vE '^[[:space:]]*(#|$)' "$SRC/.leak-patterns" > "$PAT" || true   # blank line would match everything
+  hits="$(cd "$WS/.claude" && grep -rlEf "$PAT" $OWNED_DIRS settings.json CLAUDE.md || true)"
+  if [ -n "$hits" ]; then
+    echo "LEAK GUARD: project-specific text found — nothing pulled. Move it to .claude/knowledge/ or root CLAUDE.md:" >&2
+    echo "$hits" | sed 's/^/  /' >&2
+    exit 1
+  fi
+  for d in $OWNED_DIRS; do
+    rm -rf "$SRC/.claude/$d"
+    cp -r "$WS/.claude/$d" "$SRC/.claude/$d"
+  done
+  cp "$WS/.claude/settings.json" "$WS/.claude/CLAUDE.md" "$SRC/.claude/"
+  git -C "$SRC" status --short -- .claude
+  echo "Pulled from $WS. Review with: git -C \"$SRC\" diff   — then commit/push yourself."
+  exit 0
+fi
+
+if [ "${1:-}" = "--export" ]; then
+  WS="$(cd "${2:?usage: install.sh --export <workspace> [out.zip]}" && pwd)"
+  OUT="${3:-$WS/$(basename "$WS")-claude-kit-$(date +%Y%m%d).zip}"
+  OUT="$(cd "$(dirname "$OUT")" && pwd)/$(basename "$OUT")"
+  STAGE="$(mktemp -d)"; trap 'rm -rf "$STAGE"' EXIT
+  # allowlist, never denylist: only these paths can ever end up in the zip
+  mkdir -p "$STAGE/.claude"
+  for d in $OWNED_DIRS knowledge; do
+    if [ -d "$WS/.claude/$d" ]; then cp -r "$WS/.claude/$d" "$STAGE/.claude/$d"; fi
+  done
+  cp "$WS/.claude/settings.json" "$WS/.claude/CLAUDE.md" "$STAGE/.claude/"
+  cp "$WS/CLAUDE.md" "$STAGE/CLAUDE.md"
+  # code guard: names/paths are fine (teammates have source access), source code is not
+  bad="$(cd "$STAGE" && {
+    find . -type f ! -name '*.md' ! -name '*.sh' ! -name '*.json'
+    grep -rlE '^[[:space:]]*(package|import)[[:space:]]+[a-z][a-z0-9_]*(\.[A-Za-z0-9_*]+)+[[:space:]]*;|^[[:space:]]*(SELECT|INSERT INTO|DELETE FROM|CREATE TABLE)[[:space:]]|<%@' . || true
+  })"
+  if [ -n "$bad" ]; then
+    echo "CODE GUARD: looks like source code — zip not created:" >&2
+    echo "$bad" | sed 's/^/  /' >&2
+    exit 1
+  fi
+  rm -f "$OUT"
+  if command -v zip >/dev/null 2>&1; then
+    (cd "$STAGE" && zip -qr "$OUT" .claude CLAUDE.md)
+  elif [ -n "${SYSTEMROOT:-}" ]; then   # Windows Git Bash: no zip, but the system bsdtar writes zip with -a
+    (cd "$STAGE" && "$(cygpath "$SYSTEMROOT")/System32/tar.exe" -a -cf "$(cygpath -w "$OUT")" .claude CLAUDE.md)
+  else
+    echo "Need 'zip' to export" >&2; exit 1
+  fi
+  echo "Exported -> $OUT"
+  echo "  files: $(cd "$STAGE" && find . -type f | wc -l | tr -d ' ')  (knowledge: $(find "$STAGE/.claude/knowledge" -type f 2>/dev/null | wc -l | tr -d ' '))"
+  echo "Teammate: unzip into their workspace root (back up their own CLAUDE.md first)."
+  exit 0
+fi
 
 # 2) inputs: target (required), remote + branch (optional). Prompt only when run with no args.
 TARGET="${1:-}"
@@ -72,26 +139,57 @@ echo "Installing toolkit"
 echo "  from: $SRC"
 echo "  to  : $TARGET"
 
-# 3) back up an existing .claude as a whole if present (safety net before overwriting)
-# ponytail: back up the whole folder once = simple and rollback-able; if the repo grows large enough
-# that this is expensive, switch to backing up only settings.json + CLAUDE.md
+# 3) back up only what we are about to overwrite (not reports/ — those hold project code and grow)
 if [ -e "$TARGET/.claude" ]; then
   BAK="$TARGET/.claude.bak-$(date +%Y%m%d-%H%M%S)"
-  cp -r "$TARGET/.claude" "$BAK"
-  echo "  backed up existing -> $BAK"
+  mkdir -p "$BAK"
+  for p in $OWNED_DIRS settings.json CLAUDE.md; do
+    if [ -e "$TARGET/.claude/$p" ]; then cp -r "$TARGET/.claude/$p" "$BAK/"; fi
+  done
+  echo "  backed up toolkit files -> $BAK"
 fi
 
 # 4) copy the toolkit
 mkdir -p "$TARGET/.claude"
 # directories: remove the old one first so cp -r doesn't nest (a/a) and we get a clean mirror
-for d in agents commands skills hooks; do
+for d in $OWNED_DIRS; do
   rm -rf "$TARGET/.claude/$d"
   cp -r "$SRC/.claude/$d" "$TARGET/.claude/$d"
 done
 # single files
 cp "$SRC/.claude/settings.json" "$TARGET/.claude/settings.json"
 cp "$SRC/.claude/CLAUDE.md"     "$TARGET/.claude/CLAUDE.md"
-cp "$SRC/CLAUDE.md"             "$TARGET/CLAUDE.md"   # root stub that @imports .claude/CLAUDE.md
+# root stub that @imports .claude/CLAUDE.md — only on first install; afterwards the project owns it
+if [ -e "$TARGET/CLAUDE.md" ]; then
+  echo "  CLAUDE.md (root): exists — kept (project-owned)"
+else
+  cp "$SRC/CLAUDE.md" "$TARGET/CLAUDE.md"
+fi
+
+# 4b) one-click wrappers for --export / --pull, pointing back at this toolkit repo
+#     (regenerated every install so a moved toolkit path heals itself; env CLAUDE_WORKSPACE overrides)
+write_wrapper() {   # $1 = file name, $2 = mode, $3 = comment, $4 = extra lines run on success
+  cat > "$TARGET/$1" <<EOF
+#!/usr/bin/env bash
+# $1 — $3
+# generated by install.sh — รัน: bash $1  หรือดับเบิลคลิก (ถูกเขียนทับทุกครั้งที่ install)
+MAIN="\${CLAUDE_WORKSPACE:-$SRC}"
+cd "\$(dirname "\$0")" || exit 1
+bash "\$MAIN/install.sh" $2 "\$PWD"
+st=\$?
+if [ \$st -eq 0 ]; then :
+$4
+fi
+[ -t 0 ] && read -rp "กด Enter เพื่อปิด"
+exit \$st
+EOF
+  chmod +x "$TARGET/$1"
+}
+write_wrapper kit-export.sh --export "สร้าง zip (toolkit + .claude/knowledge ไม่มีโค้ดจริง) ไว้ส่งเพื่อน" ""
+write_wrapper kit-pull.sh --pull "ส่ง agents/commands/skills/hooks ที่ปรับในนี้กลับ main (มี leak guard) ไม่ commit/push ให้" \
+'  echo; git -C "$MAIN" diff --stat -- .claude
+  echo "ดูรายละเอียด: git -C \"$MAIN\" diff"'
+echo "  wrappers: kit-export.sh, kit-pull.sh"
 
 # 5) make the hook executable (settings.json runs it via bash + $CLAUDE_PROJECT_DIR)
 chmod +x "$TARGET/.claude/hooks/"*.sh 2>/dev/null || true
@@ -104,7 +202,7 @@ if [ -e "$TARGET/.git" ]; then
 elif ( cd "$TARGET" && { git init -b "$BRANCH" >/dev/null 2>&1 || git init >/dev/null 2>&1; } ); then
   echo "  git: initialized new repo (branch $BRANCH)"
   # stage only the toolkit (not the user's other files) for the first commit
-  if ( cd "$TARGET" && git add .claude CLAUDE.md && git commit -q -m "chore: add Claude Code toolkit" >/dev/null 2>&1 ); then
+  if ( cd "$TARGET" && git add .claude CLAUDE.md kit-export.sh kit-pull.sh && git commit -q -m "chore: add Claude Code toolkit" >/dev/null 2>&1 ); then
     echo "  git: created initial toolkit commit"
   else
     echo "  git: skipped initial commit — set git user.name/email, then commit"
