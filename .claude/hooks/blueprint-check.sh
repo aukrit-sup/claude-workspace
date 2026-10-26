@@ -29,13 +29,13 @@ if [ -z "$SHA" ] || ! git -C "$ROOT" cat-file -e "$SHA" 2>/dev/null; then
   exit 0
 fi
 
-# ไม่นับ commit ที่แตะแค่ blueprint เอง (commit ของ /blueprint ทำให้ HEAD ขยับเสมอ)
-COUNT="$(git -C "$ROOT" rev-list --count "$SHA"..HEAD -- . ':!.claude/blueprint.md' 2>/dev/null || echo 0)"
+# ไม่นับ commit ที่แตะแค่ blueprint/knowledge (commit ของ /blueprint, /knowledge ทำให้ HEAD ขยับเสมอ)
+COUNT="$(git -C "$ROOT" rev-list --count "$SHA"..HEAD -- . ':!.claude/blueprint.md' ':!.claude/knowledge' 2>/dev/null || echo 0)"
 if [ "${COUNT:-0}" -eq 0 ]; then
   echo "[blueprint] .claude/blueprint.md สดใหม่ (ตรงกับ HEAD). ใช้เป็นแผนที่โปรเจกต์ได้เลย — เริ่มจาก blueprint ก่อน แทนการสแกนทั้งโปรเจกต์."
 else
   echo "[blueprint] .claude/blueprint.md เก่ากว่า HEAD $COUNT commit. ใช้เป็นแผนที่ตั้งต้นได้ แต่ไฟล์ต่อไปนี้เปลี่ยนหลัง blueprint — งานที่แตะส่วนเหล่านี้ให้ยึดโค้ดจริงเหนือ blueprint แล้ว refresh ด้วย /blueprint เมื่อสะดวก:"
-  git -C "$ROOT" diff --name-only "$SHA"..HEAD -- . ':!.claude/blueprint.md' 2>/dev/null | head -n 40 | sed 's/^/  - /'
+  git -C "$ROOT" diff --name-only "$SHA"..HEAD -- . ':!.claude/blueprint.md' ':!.claude/knowledge' 2>/dev/null | head -n 40 | sed 's/^/  - /'
 fi
 
 # knowledge ของทีม (.claude/knowledge/index.md) — stamp แบบเดียวกัน: <!-- knowledge-sha: <sha> ... -->
