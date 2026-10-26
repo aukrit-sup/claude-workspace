@@ -1,6 +1,6 @@
 # คำแนะนำโปรเจกต์ (CLAUDE.md)
 
-Repo นี้เป็น **ชุดเครื่องมือ Claude Code** — subagent 6 ตัว, slash command 12 คำสั่ง และ skill 10 ตัว
+Repo นี้เป็น **ชุดเครื่องมือ Claude Code** — subagent 6 ตัว, slash command 13 คำสั่ง และ skill 10 ตัว
 อยู่ใน `.claude/` (คัดลอกไปใช้ในโปรเจกต์อื่นได้) รายละเอียดเต็มดู [`README.md`](../README.md) และ
 [`.claude/skills/README.md`](skills/README.md)
 
@@ -15,7 +15,9 @@ Repo นี้เป็น **ชุดเครื่องมือ Claude Code
 
 - **ความรู้ที่ทีมต้องรู้เขียนลง `.claude/knowledge/`** — ไม่เก็บแค่ใน memory ส่วนตัว (คนอื่นมองไม่เห็น):
   กฎ/gotcha ที่เจ็บมาแล้ว → `rules.md` · โครงสร้างระบบ → `systems.md` · สถานะงานรายฟีเจอร์ → `features/<slug>.md`
-- **`/pause` หรือจบงานฟีเจอร์** → อัปเดตการ์ด `features/<slug>.md` (สถานะ, ข้อยุติ, งานค้าง, gotcha) คู่กับ `_state.json`
+- **สร้าง/อัปเดตด้วย `/knowledge`** — stamp `knowledge-sha:` ใน `index.md` แบบเดียวกับ blueprint;
+  SessionStart hook แจ้งเมื่อ knowledge ตามหลัง HEAD → **จบงานฟีเจอร์หรือก่อน `/pause` ให้รัน `/knowledge` เองโดยไม่ต้องถาม**
+  · ยังไม่มี knowledge แต่มีงานที่ควรส่งต่อ → เสนอผู้ใช้ให้รัน `/knowledge` (CREATE)
 - **ห้ามมีโค้ดจริงใน knowledge** — อ้างเป็น path/ชื่อ class/เมธอด/ตาราง ห้ามแปะ body, credential, IP
   (`kit-export.sh` จะไม่ยอมสร้าง zip ถ้าเจอรูปแบบโค้ด)
 - **ไฟล์ toolkit (`agents/ commands/ skills/ hooks/` + ไฟล์นี้) ต้องเป็นของกลาง** — ห้ามมีชื่อโปรเจกต์/ระบบ/host;

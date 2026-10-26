@@ -29,11 +29,26 @@ if [ -z "$SHA" ] || ! git -C "$ROOT" cat-file -e "$SHA" 2>/dev/null; then
   exit 0
 fi
 
-COUNT="$(git -C "$ROOT" rev-list --count "$SHA"..HEAD 2>/dev/null || echo 0)"
+# ไม่นับ commit ที่แตะแค่ blueprint เอง (commit ของ /blueprint ทำให้ HEAD ขยับเสมอ)
+COUNT="$(git -C "$ROOT" rev-list --count "$SHA"..HEAD -- . ':!.claude/blueprint.md' 2>/dev/null || echo 0)"
 if [ "${COUNT:-0}" -eq 0 ]; then
   echo "[blueprint] .claude/blueprint.md สดใหม่ (ตรงกับ HEAD). ใช้เป็นแผนที่โปรเจกต์ได้เลย — เริ่มจาก blueprint ก่อน แทนการสแกนทั้งโปรเจกต์."
 else
   echo "[blueprint] .claude/blueprint.md เก่ากว่า HEAD $COUNT commit. ใช้เป็นแผนที่ตั้งต้นได้ แต่ไฟล์ต่อไปนี้เปลี่ยนหลัง blueprint — งานที่แตะส่วนเหล่านี้ให้ยึดโค้ดจริงเหนือ blueprint แล้ว refresh ด้วย /blueprint เมื่อสะดวก:"
-  git -C "$ROOT" diff --name-only "$SHA"..HEAD 2>/dev/null | head -n 40 | sed 's/^/  - /'
+  git -C "$ROOT" diff --name-only "$SHA"..HEAD -- . ':!.claude/blueprint.md' 2>/dev/null | head -n 40 | sed 's/^/  - /'
+fi
+
+# knowledge ของทีม (.claude/knowledge/index.md) — stamp แบบเดียวกัน: <!-- knowledge-sha: <sha> ... -->
+# นับเฉพาะ commit ที่เป็นงานจริง — ไม่นับ commit ที่แตะแค่ toolkit/blueprint/knowledge เอง (ไม่งั้นเตือนตัวเองวนไป)
+KI="$ROOT/.claude/knowledge/index.md"
+if [ -f "$KI" ]; then
+  KSHA="$(sed -n 's/.*knowledge-sha:[[:space:]]*\([0-9a-f]\{7,40\}\).*/\1/p' "$KI" | head -n1)"
+  KCOUNT="$( [ -n "$KSHA" ] && git -C "$ROOT" rev-list --count "$KSHA"..HEAD -- . \
+    ':!.claude/knowledge' ':!.claude/blueprint.md' ':!.claude/agents' ':!.claude/commands' \
+    ':!.claude/skills' ':!.claude/hooks' ':!.claude/CLAUDE.md' ':!.claude/settings.json' ':!CLAUDE.md' \
+    2>/dev/null || echo "?")"
+  if [ "$KCOUNT" != "0" ]; then
+    echo "[knowledge] .claude/knowledge/ ตามหลัง HEAD $KCOUNT commit — เมื่อจบงานฟีเจอร์หรือก่อน /pause ให้รัน /knowledge เพื่อเก็บความรู้/สถานะงานใหม่ (ไม่ต้องถาม)."
+  fi
 fi
 exit 0
