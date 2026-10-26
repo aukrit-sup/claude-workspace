@@ -17,7 +17,7 @@
 #
 # Two more modes:
 #   ./install.sh --pull   <workspace>          workspace -> this repo (toolkit files only), then review git diff
-#   ./install.sh --export <workspace> [x.zip]  toolkit + .claude/knowledge -> zip for teammates (no source code)
+#   ./install.sh --export <workspace> [x.zip]  .claude/knowledge only -> zip for teammates (no source code)
 #
 # --pull refuses to run unless .leak-patterns (gitignored, one ERE per line) exists here, and aborts
 # if any pulled file matches — this repo has a public-ish remote, project names must never reach it.
@@ -52,37 +52,35 @@ fi
 
 if [ "${1:-}" = "--export" ]; then
   WS="$(cd "${2:?usage: install.sh --export <workspace> [out.zip]}" && pwd)"
-  OUT="${3:-$WS/$(basename "$WS")-claude-kit-$(date +%Y%m%d).zip}"
+  OUT="${3:-$WS/$(basename "$WS")-knowledge-$(date +%Y%m%d).zip}"
   OUT="$(cd "$(dirname "$OUT")" && pwd)/$(basename "$OUT")"
+  [ -d "$WS/.claude/knowledge" ] || { echo "No $WS/.claude/knowledge — run /knowledge first" >&2; exit 1; }
   STAGE="$(mktemp -d)"; trap 'rm -rf "$STAGE"' EXIT
-  # allowlist, never denylist: only these paths can ever end up in the zip
+  # knowledge only — teammates get the toolkit itself from this repo via install.sh
+  # allowlist, never denylist: nothing outside .claude/knowledge can ever end up in the zip
   mkdir -p "$STAGE/.claude"
-  for d in $OWNED_DIRS knowledge; do
-    if [ -d "$WS/.claude/$d" ]; then cp -r "$WS/.claude/$d" "$STAGE/.claude/$d"; fi
-  done
-  cp "$WS/.claude/settings.json" "$WS/.claude/CLAUDE.md" "$STAGE/.claude/"
-  cp "$WS/CLAUDE.md" "$STAGE/CLAUDE.md"
+  cp -r "$WS/.claude/knowledge" "$STAGE/.claude/knowledge"
   # code guard: names/paths are fine (teammates have source access), source code is not
   bad="$(cd "$STAGE" && {
-    find . -type f ! -name '*.md' ! -name '*.sh' ! -name '*.json'
+    find . -type f ! -name '*.md'
     grep -rlE '^[[:space:]]*(package|import)[[:space:]]+[a-z][a-z0-9_]*(\.[A-Za-z0-9_*]+)+[[:space:]]*;|^[[:space:]]*(SELECT|INSERT INTO|DELETE FROM|CREATE TABLE)[[:space:]]|<%@' . || true
   })"
   if [ -n "$bad" ]; then
-    echo "CODE GUARD: looks like source code — zip not created:" >&2
+    echo "CODE GUARD: non-.md file or code-like line — zip not created:" >&2
     echo "$bad" | sed 's/^/  /' >&2
     exit 1
   fi
   rm -f "$OUT"
   if command -v zip >/dev/null 2>&1; then
-    (cd "$STAGE" && zip -qr "$OUT" .claude CLAUDE.md)
+    (cd "$STAGE" && zip -qr "$OUT" .claude)
   elif [ -n "${SYSTEMROOT:-}" ]; then   # Windows Git Bash: no zip, but the system bsdtar writes zip with -a
-    (cd "$STAGE" && "$(cygpath "$SYSTEMROOT")/System32/tar.exe" -a -cf "$(cygpath -w "$OUT")" .claude CLAUDE.md)
+    (cd "$STAGE" && "$(cygpath "$SYSTEMROOT")/System32/tar.exe" -a -cf "$(cygpath -w "$OUT")" .claude)
   else
     echo "Need 'zip' to export" >&2; exit 1
   fi
-  echo "Exported -> $OUT"
-  echo "  files: $(cd "$STAGE" && find . -type f | wc -l | tr -d ' ')  (knowledge: $(find "$STAGE/.claude/knowledge" -type f 2>/dev/null | wc -l | tr -d ' '))"
-  echo "Teammate: unzip into their workspace root (back up their own CLAUDE.md first)."
+  echo "Exported -> $OUT  ($(find "$STAGE" -type f | wc -l | tr -d ' ') knowledge files)"
+  echo "Teammate: install the toolkit from this repo first, unzip at the workspace root (-> .claude/knowledge/),"
+  echo "          then make sure root CLAUDE.md has the line: @.claude/knowledge/rules.md  (or index.md if split)"
   exit 0
 fi
 
@@ -185,7 +183,7 @@ exit \$st
 EOF
   chmod +x "$TARGET/$1"
 }
-write_wrapper kit-export.sh --export "สร้าง zip (toolkit + .claude/knowledge ไม่มีโค้ดจริง) ไว้ส่งเพื่อน" ""
+write_wrapper kit-export.sh --export "สร้าง zip เฉพาะ .claude/knowledge (ไม่มีโค้ดจริง) ไว้ส่งเพื่อน — toolkit ให้เพื่อนติดตั้งจาก claude-workspace เอง" ""
 write_wrapper kit-pull.sh --pull "ส่ง agents/commands/skills/hooks ที่ปรับในนี้กลับ main (มี leak guard) ไม่ commit/push ให้" \
 '  echo; git -C "$MAIN" diff --stat -- .claude
   echo "ดูรายละเอียด: git -C \"$MAIN\" diff"'

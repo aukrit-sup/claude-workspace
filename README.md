@@ -134,11 +134,11 @@ Claude Code จะตรวจพบไฟล์อัตโนมัติภ�
 |---|---|---|
 | repo นี้ → workspace | รัน install ซ้ำ | `bash install.sh <ws>` |
 | workspace → repo นี้ | `bash kit-pull.sh` แล้วดู `git diff` ที่ repo นี้ก่อน commit/push เอง | `bash install.sh --pull <ws>` |
-| workspace → เพื่อนร่วมทีม | `bash kit-export.sh` → ได้ `<ws>-claude-kit-YYYYMMDD.zip` ให้เพื่อนแตกที่ root workspace | `bash install.sh --export <ws> [out.zip]` |
+| workspace → เพื่อนร่วมทีม | `bash kit-export.sh` → ได้ `<ws>-knowledge-YYYYMMDD.zip` (**เฉพาะ `.claude/knowledge/`**) ให้เพื่อนแตกที่ root workspace — toolkit เพื่อนติดตั้งจาก repo นี้ด้วย `install.sh` เอง | `bash install.sh --export <ws> [out.zip]` |
 
 กันข้อมูลหลุด:
 - **`--pull`** — ต้องมีไฟล์ `.leak-patterns` ที่ root ของ repo นี้ (gitignored, regex บรรทัดละตัว เช่นชื่อ package/ระบบ/host ของลูกค้า) ถ้าไม่มีจะไม่ทำงาน และถ้าไฟล์ toolkit ฝั่ง workspace match แม้ไฟล์เดียวจะไม่ดึงอะไรเลย → ย้ายข้อความนั้นไป root `CLAUDE.md` หรือ `.claude/knowledge/`
-- **`--export`** — zip หยิบแบบ allowlist (toolkit + `.claude/knowledge/` + `CLAUDE.md` ทั้งสองไฟล์) และไม่ยอมสร้าง zip ถ้าเจอไฟล์ที่ไม่ใช่ `.md/.sh/.json` หรือบรรทัดหน้าตาเป็นโค้ด (`package ...;`, `import ...;`, SQL, `<%@`) — ชื่อ class/path ในข้อความยังผ่านได้ (เหมาะกับทีมที่มีสิทธิ์ดู source อยู่แล้ว)
+- **`--export`** — zip หยิบ **เฉพาะ `.claude/knowledge/`** (allowlist — ไฟล์อื่นในโปรเจกต์หลุดเข้า zip ไม่ได้) และไม่ยอมสร้าง zip ถ้าเจอไฟล์ที่ไม่ใช่ `.md` หรือบรรทัดหน้าตาเป็นโค้ด (`package ...;`, `import ...;`, SQL, `<%@`) — ชื่อ class/path ในข้อความยังผ่านได้ (เหมาะกับทีมที่มีสิทธิ์ดู source อยู่แล้ว) · ฝั่งเพื่อน: แตก zip แล้ว root `CLAUDE.md` ต้องมี `@.claude/knowledge/rules.md` (หรือ `index.md`) — ไม่มีก็รัน `/knowledge` ให้เพิ่มให้
 - ตัวตรวจทั้งสองเป็นตาข่ายกันพลาด ไม่ใช่ 100% — เปิดดู diff / การ์ดก่อนส่งทุกครั้ง
 
 `.claude/knowledge/` (ไม่มีโค้ดจริง): `rules.md` (กฎ/gotcha — import ผ่าน root `CLAUDE.md`), `systems.md` (แผนที่ระบบ), `features/<slug>.md` (การ์ดส่งต่องาน: สถานะ, ข้อยุติ, ไฟล์ที่แตะแบบ pointer, งานค้าง, วิธี verify) — สร้าง/อัปเดตด้วย `/knowledge`

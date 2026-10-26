@@ -42,8 +42,9 @@ Optional focus (feature slug หรือหัวข้อ): $ARGUMENTS
 
 ## โหมดการทำงาน
 
+0. **ทุกโหมด:** ถ้า root `CLAUDE.md` ยังไม่ @import knowledge (`rules.md` หรือ `index.md` ถ้าแยกชั้นแล้ว) ให้เพิ่มบรรทัดนั้นต่อท้าย
+   (เกิดเมื่อเพื่อนแตก zip knowledge ลง workspace ที่ install toolkit ไว้แล้ว)
 1. **ไม่มี `.claude/knowledge/` → CREATE:** อ่านแหล่งข้อมูลทั้งหมดด้านล่างแล้วสร้างครบทุกไฟล์
-   ถ้า root `CLAUDE.md` ยังไม่ import `rules.md` ให้เพิ่มบรรทัด `@.claude/knowledge/rules.md` ต่อท้าย
 2. **มีแล้ว → REFRESH (ประหยัด ไม่อ่านใหม่ทั้งก้อน):**
    - อ่าน SHA จากบรรทัดแรกของ `index.md` → `git log --oneline <sha>..HEAD` + `git diff --name-only <sha>..HEAD`
    - ฟีเจอร์ที่มี commit/report/`_state*.json` เปลี่ยน → อัปเดตการ์ดของฟีเจอร์นั้น (ไม่มีการ์ด = สร้างใหม่)
