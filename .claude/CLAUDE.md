@@ -18,6 +18,8 @@ Repo นี้เป็น **ชุดเครื่องมือ Claude Code
 - **สร้าง/อัปเดตด้วย `/knowledge`** — stamp `knowledge-sha:` ใน `index.md` แบบเดียวกับ blueprint;
   SessionStart hook แจ้งเมื่อ knowledge ตามหลัง HEAD → **จบงานฟีเจอร์หรือก่อน `/pause` ให้รัน `/knowledge` เองโดยไม่ต้องถาม**
   · ยังไม่มี knowledge แต่มีงานที่ควรส่งต่อ → เสนอผู้ใช้ให้รัน `/knowledge` (CREATE)
+- **อ่านแบบประหยัด token** — หาใน knowledge ด้วย `Grep` จาก keyword ก่อน แล้ว `Read` เฉพาะส่วนที่ใช้
+  (การ์ดฟีเจอร์: สถานะ + งานค้างอยู่ ~20 บรรทัดแรก) · ไม่เปิด `features/_archive/` เว้นแต่งานแตะฟีเจอร์นั้น
 - **ห้ามมีโค้ดจริงใน knowledge** — อ้างเป็น path/ชื่อ class/เมธอด/ตาราง ห้ามแปะ body, credential, IP
   (`kit-export.sh` จะไม่ยอมสร้าง zip ถ้าเจอรูปแบบโค้ด)
 - **ไฟล์ toolkit (`agents/ commands/ skills/ hooks/` + ไฟล์นี้) ต้องเป็นของกลาง** — ห้ามมีชื่อโปรเจกต์/ระบบ/host;

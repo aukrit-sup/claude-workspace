@@ -143,6 +143,34 @@ Claude Code จะตรวจพบไฟล์อัตโนมัติภ�
 
 `.claude/knowledge/` (ไม่มีโค้ดจริง): `rules.md` (กฎ/gotcha — import ผ่าน root `CLAUDE.md`), `systems.md` (แผนที่ระบบ), `features/<slug>.md` (การ์ดส่งต่องาน: สถานะ, ข้อยุติ, ไฟล์ที่แตะแบบ pointer, งานค้าง, วิธี verify) — สร้าง/อัปเดตด้วย `/knowledge`
 
+#### knowledge เยอะมากๆ — แบ่ง 3 ชั้นเพื่อประหยัด token
+
+ต้นทุน token จริงมาจาก 2 อย่าง: **ของที่ถูกโหลดทุก session** (ไฟล์ที่ root `CLAUDE.md` @import) และ **การเปิดไฟล์ทั้งก้อนทั้งที่ต้องการแค่ส่วนเดียว** — จำนวนไฟล์ไม่ใช่ต้นทุน เพราะไฟล์ที่ไม่ถูกเปิดไม่กิน token เลย
+
+```
+ชั้น 0 · โหลดทุก session (เพดาน ~40–60 บรรทัด — ไม่โตตามจำนวนกฎ/ฟีเจอร์)
+  index.md        ← root CLAUDE.md @import (ตอนยังเล็ก @import rules.md ตรงๆ ได้)
+    - กฎย่อข้อละบรรทัด: "ข้อห้าม · keyword → rules/<หัวข้อ>.md"
+    - ตารางฟีเจอร์: | slug | สถานะ | keyword | สรุป 1 บรรทัด |
+
+ชั้น 1 · เปิดเมื่องานแตะเรื่องนั้น
+  rules/<หัวข้อ>.md · systems.md · features/<slug>.md
+  (การ์ดเรียง "สถานะ + งานค้าง" ไว้บนสุด → ตอน resume อ่าน ~20 บรรทัดแรกพอ)
+
+ชั้น 2 · แทบไม่เปิด
+  features/_archive/<slug>.md   ← ฟีเจอร์ done เก่า ย่อเหลือข้อยุติ + gotcha
+```
+
+`/knowledge` จัดชั้นให้เองตอน refresh เมื่อถึงเกณฑ์ (ไม่ต้องสั่งแยก):
+
+| เกณฑ์ | สิ่งที่ทำ |
+|---|---|
+| `rules.md` เกิน ~60 บรรทัด | แยกเป็น `rules/<หัวข้อ>.md` + ย้าย "กฎย่อ" เข้า `index.md` แล้วเปลี่ยน root `CLAUDE.md` ไป @import `index.md` แทน — ข้อห้ามยังโหลดทุก session (Claude ยังรู้ว่าห้ามอะไร) ส่วนรายละเอียดเปิดเมื่อจำเป็น |
+| ฟีเจอร์ done เกิน ~30 วัน หรือการ์ดเกิน ~8 ใบ | ย้าย done เก่าสุดไป `features/_archive/` แบบย่อ (gotcha ข้ามฟีเจอร์ขึ้น rules ก่อน) เหลือ 1 แถว `archived` ใน index |
+| `index.md` เกิน ~60 บรรทัด | ย้ายแถว `archived` ไป `features/_archive/index.md` เหลือบรรทัดชี้บรรทัดเดียว |
+
+วิธีอ่าน (กฎใน `.claude/CLAUDE.md`): **`Grep` keyword ก่อน แล้ว `Read` เฉพาะส่วนที่ใช้** — ทุกบรรทัดใน index/กฎย่อ/การ์ดจึงต้องมี keyword ที่คนจะค้นจริง (ชื่อ class, ตาราง, เมนู, ข้อความ error) · ไม่เปิด `_archive/` เว้นแต่งานแตะฟีเจอร์นั้น
+
 > ถ้าต้องการ dev backend/frontend คู่ขนาน ให้เปิด flag Agent Team ใน `settings.json` (ดูส่วน [Agent Team](#agent-team-ให้-dev-ทำ-backend--frontend-คู่ขนาน)) — subagent มี `Skill` tool ให้แล้วใน template จึงเรียก skill ที่ผูกไว้ได้ทันที
 
 ---
