@@ -1,6 +1,6 @@
 # ชุด Subagent + Slash Command + Skill สำหรับ Claude Code
 
-ชุดเครื่องมือครบวงจรสำหรับงานพัฒนาซอฟต์แวร์ใน Claude Code ประกอบด้วย **subagent เฉพาะทาง 6 ตัว**, **slash command 12 คำสั่ง** ที่เรียกใช้ agent เหล่านั้นตามสูตรที่เหมาะกับแต่ละสถานการณ์ และ **skill 10 ตัว** (vendor จาก [9arm-skills](https://github.com/thananon/9arm-skills) + [ui-skills](https://github.com/ibelick/ui-skills) + [superpowers](https://github.com/obra/superpowers)) ที่ผูกเข้ากับ agent/command บางตัวและ auto-trigger ตามบริบท ทุกขั้นตอนเขียนสรุปเป็นไฟล์ `.md` และสื่อสารกับคุณเป็นภาษาไทย
+ชุดเครื่องมือครบวงจรสำหรับงานพัฒนาซอฟต์แวร์ใน Claude Code ประกอบด้วย **subagent เฉพาะทาง 6 ตัว**, **slash command 13 คำสั่ง** ที่เรียกใช้ agent เหล่านั้นตามสูตรที่เหมาะกับแต่ละสถานการณ์ และ **skill 10 ตัว** (vendor จาก [9arm-skills](https://github.com/thananon/9arm-skills) + [ui-skills](https://github.com/ibelick/ui-skills) + [superpowers](https://github.com/obra/superpowers)) ที่ผูกเข้ากับ agent/command บางตัวและ auto-trigger ตามบริบท ทุกขั้นตอนเขียนสรุปเป็นไฟล์ `.md` และสื่อสารกับคุณเป็นภาษาไทย
 
 ชุดนี้ออกแบบให้เป็น **template สำหรับ copy `.claude/` ไปวางในโปรเจกต์อื่น** — เมื่อวางแล้วมันจะ **ตั้งตัวเองอัตโนมัติ** ผ่านระบบ [Project Blueprint](#project-blueprint-แผนที่โปรเจกต์--ลด-context) ที่สร้างแผนที่โปรเจกต์ปลายทางและดูแลความสดให้เอง เพื่อลด context ที่เสียไปกับการสแกนไฟล์ซ้ำๆ ทุก session
 
@@ -19,13 +19,14 @@
 
 ---
 
-## Slash Command (12 คำสั่ง)
+## Slash Command (13 คำสั่ง)
 
 พิมพ์ชื่อคำสั่งตามด้วยคำอธิบาย แล้วที่เหลือทำงานเอง
 
 | คำสั่ง | ใช้เมื่อ | Agent ที่เกี่ยวข้อง | จุดหยุดตรวจ (GATE) |
 |---|---|---|---|
 | `/blueprint` | สร้าง/อัปเดตแผนที่โปรเจกต์ (`.claude/blueprint.md`) | — | — |
+| `/knowledge` | สร้าง/อัปเดต knowledge ของทีม (`.claude/knowledge/`: กฎ, แผนที่ระบบ, การ์ดส่งต่องาน — ไม่มีโค้ดจริง) | — (แยก subagent ต่อฟีเจอร์ได้) | ถามเมื่อแหล่งข้อมูลขัดกัน |
 | `/build-feature` | สร้างฟีเจอร์ใหม่ตั้งแต่ต้น | ครบทั้ง 4 ตัว | ตรวจ spec ก่อน dev |
 | `/fix-bug` | แก้บั๊ก | dev + qa | ยืนยัน root cause ก่อนแก้ |
 | `/hotfix` | แก้ด่วนขึ้น production | dev (diagnose + fix/verify ในตัวเดียว) | ยืนยันก่อนแตะ production |
@@ -140,7 +141,7 @@ Claude Code จะตรวจพบไฟล์อัตโนมัติภ�
 - **`--export`** — zip หยิบแบบ allowlist (toolkit + `.claude/knowledge/` + `CLAUDE.md` ทั้งสองไฟล์) และไม่ยอมสร้าง zip ถ้าเจอไฟล์ที่ไม่ใช่ `.md/.sh/.json` หรือบรรทัดหน้าตาเป็นโค้ด (`package ...;`, `import ...;`, SQL, `<%@`) — ชื่อ class/path ในข้อความยังผ่านได้ (เหมาะกับทีมที่มีสิทธิ์ดู source อยู่แล้ว)
 - ตัวตรวจทั้งสองเป็นตาข่ายกันพลาด ไม่ใช่ 100% — เปิดดู diff / การ์ดก่อนส่งทุกครั้ง
 
-`.claude/knowledge/` (ไม่มีโค้ดจริง): `rules.md` (กฎ/gotcha — import ผ่าน root `CLAUDE.md`), `systems.md` (แผนที่ระบบ), `features/<slug>.md` (การ์ดส่งต่องาน: สถานะ, ข้อยุติ, ไฟล์ที่แตะแบบ pointer, งานค้าง, วิธี verify)
+`.claude/knowledge/` (ไม่มีโค้ดจริง): `rules.md` (กฎ/gotcha — import ผ่าน root `CLAUDE.md`), `systems.md` (แผนที่ระบบ), `features/<slug>.md` (การ์ดส่งต่องาน: สถานะ, ข้อยุติ, ไฟล์ที่แตะแบบ pointer, งานค้าง, วิธี verify) — สร้าง/อัปเดตด้วย `/knowledge`
 
 > ถ้าต้องการ dev backend/frontend คู่ขนาน ให้เปิด flag Agent Team ใน `settings.json` (ดูส่วน [Agent Team](#agent-team-ให้-dev-ทำ-backend--frontend-คู่ขนาน)) — subagent มี `Skill` tool ให้แล้วใน template จึงเรียก skill ที่ผูกไว้ได้ทันที
 
@@ -170,7 +171,7 @@ flowchart TD
 | ไฟล์ | บทบาท |
 |---|---|
 | `.claude/commands/blueprint.md` | คำสั่ง `/blueprint` — สแกน/refresh แผนที่ (โครงสร้าง, tech stack, entry points, "อยากได้ X ดูที่ไหน") พร้อม stamp `blueprint-sha` |
-| `.claude/hooks/blueprint-check.sh` | SessionStart hook — เทียบ SHA ที่ stamp กับ HEAD แล้ว inject สถานะความสด (สด / เก่ากว่า N commit + ลิสต์ไฟล์ที่เปลี่ยน) เข้า context |
+| `.claude/hooks/blueprint-check.sh` | SessionStart hook — เทียบ SHA ที่ stamp กับ HEAD แล้ว inject สถานะความสด (สด / เก่ากว่า N commit + ลิสต์ไฟล์ที่เปลี่ยน; ไม่นับ commit ที่แตะแค่ blueprint เอง) เข้า context · เช็ค `knowledge-sha` ใน `.claude/knowledge/index.md` ด้วย — เตือนให้รัน `/knowledge` เมื่อตามหลัง commit งานจริง |
 | `.claude/settings.json` | ลงทะเบียน hook เข้า `SessionStart` |
 
 ### ทำไมปลอดภัย (ไม่หลอกให้เชื่อแผนที่เก่า)
@@ -195,6 +196,13 @@ flowchart TD
 ```
 /blueprint src/payment
 ```
+
+### `/knowledge` — เก็บความรู้ของทีม
+```
+/knowledge
+/knowledge <feature-slug>
+```
+รัน: **ครั้งแรก** อ่าน git + `.claude/reports/` + `_state*.json` แล้วสร้าง `.claude/knowledge/` (`rules.md`, `systems.md`, การ์ด `features/<slug>.md` ต่อฟีเจอร์) พร้อม stamp `knowledge-sha` และ import `rules.md` เข้า root `CLAUDE.md`; **ครั้งถัดไป** อัปเดตเฉพาะการ์ดของฟีเจอร์ที่มี commit/report เปลี่ยนตั้งแต่ SHA เดิม · ห้ามมีโค้ดจริง (อ้างเป็น path/ชื่อ class) · แหล่งข้อมูลขัดกันจะถามก่อน · ปกติไม่ต้องพิมพ์เอง — SessionStart hook เตือนเมื่อ knowledge ตามหลัง แล้ว Claude รันให้ตอนจบงานฟีเจอร์/ก่อน `/pause` ตามกฎใน `.claude/CLAUDE.md`
 
 ### `/build-feature` — สร้างฟีเจอร์ใหม่
 ```
